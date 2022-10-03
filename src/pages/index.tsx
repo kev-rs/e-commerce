@@ -1,10 +1,8 @@
 import { useEffect } from 'react';
-import {  } from 'next/future/image';
 import type { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
-import { Card, CardActionArea, CardMedia, Grid, Typography } from '@mui/material';
-import { ShopLayout } from '../components/layouts';
+import { Typography } from '@mui/material';
 import { prisma, SeedProduct } from '../db';
-import { ProductList } from '../components/indedx';
+import { ProductList, ShopLayout } from '../components';
 
 const Home: NextPage<{ data: SeedProduct[] }> = ({ data }) => {
 

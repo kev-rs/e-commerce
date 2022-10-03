@@ -12,7 +12,7 @@ export const ShopLayout: React.FC<Props> = ({ children, title, pageInfo, imageUr
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{`Tesla Shop ${title}`}</title>
         <meta name='description' content={pageInfo} />
         <meta name='og:title' content={title} />
         <meta name='og:description' content={pageInfo} />

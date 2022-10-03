@@ -26,6 +26,8 @@ model SeedProduct {
   title       String
   type        ValidTypes
   gender      Gender
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
 }
 
 enum ValidSizes {

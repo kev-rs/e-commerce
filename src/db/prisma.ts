@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-export type { SeedProduct } from '@prisma/client';
+export type { SeedProduct, ValidSizes, ValidTypes } from '@prisma/client';
 
 declare global {
   var prisma: PrismaClient | null
