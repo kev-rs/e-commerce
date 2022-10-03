@@ -1,4 +1,12 @@
 services:
+  kev-yml:
+    image: nextjs-docker
+    container_name: app-container
+    ports:
+      - 3008:3000
+    build: .
+    command: node server.js
+
   mongo1:
     image: mongo:5.0.0
     container_name: mongo1

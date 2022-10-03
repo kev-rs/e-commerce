@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(req: NextRequest) {
-  console.log('Hello from Home :)')
+export async function middleware(req: NextRequest) {  
+  NextResponse.next();
 }
 
 export const config = {

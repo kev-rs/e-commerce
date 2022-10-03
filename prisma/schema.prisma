@@ -10,15 +10,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  posts  Post[]
+// model SeedData {
+//   data SeedProduct[]
+// }
+
+model SeedProduct {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  images      String[]
+  inStock     Float
+  price       Float
+  sizes       ValidSizes[]
+  slug        String       @unique
+  tags        String[]
+  title       String
+  type        ValidTypes
+  gender      Gender
 }
 
-model Post {
-  id  String  @id @default(auto())  @map("_id") @db.ObjectId
-  title String
-  author  User  @relation(fields: [authorId], references: [id])
-  authorId  String  @db.ObjectId
+enum ValidSizes {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+  XXXL
+}
+
+enum ValidTypes {
+  shirts
+  pants
+  hoodies
+  hats
+}
+
+enum Gender {
+  men
+  women
+  kid
+  unisex
 }
