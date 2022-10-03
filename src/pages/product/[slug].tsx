@@ -2,10 +2,9 @@ import { Box, Button, Chip, Grid, Typography } from '@mui/material';
 import type { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next';
 import { ItemCounter, ShopLayout, ItemSize, ProductSlideshow } from '../../components';
 import { prisma, SeedProduct } from '../../db';
+import axios from 'axios';
 
 const ProductPage: React.FC<{ product: SeedProduct }> = ({ product }) => {
-
-  console.log({ product })
 
   return (
     <ShopLayout title={product.title} pageInfo={product.description}>
@@ -43,7 +42,7 @@ const ProductPage: React.FC<{ product: SeedProduct }> = ({ product }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
 
-  const products = await prisma.seedProduct.findMany();
+  const products = await prisma.seedProduct.findMany({ select: { slug: true } });
   const paths = products.map(({ slug }) => ({ params: { slug } }));
 
   return {
@@ -54,6 +53,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }: GetStaticPropsContext) => {
   const { slug } = params as { slug: string };
+
+  const { data: produc } = await axios.get(`http://localhost:3000/api/products/${slug}`)
+  console.log({axiosRes: produc});
 
   const product = await prisma.seedProduct.findUnique({ where: { slug } });
 
