@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 import NextLink from 'next/link'
-import { Box, Card, CardActionArea, CardMedia, Grid, Link, Typography } from "@mui/material"
+import { Box, Card, CardActionArea, Grid, Link, Typography } from "@mui/material"
 import { SeedProduct } from '../../db';
+import Image from 'mui-image';
 
 export const ProductCard: React.FC<SeedProduct> = (product) => {
 
@@ -9,9 +10,9 @@ export const ProductCard: React.FC<SeedProduct> = (product) => {
 
   const productImage = useMemo(() => {
     return isHovered
-      ? `products/${product.images[1]}`
-      : `products/${product.images[0]}`
-  }, [isHovered, product.images]);
+      ? `/products/${product.images[1]}`
+      : `/products/${product.images[0]}`
+  }, [ isHovered, product.images ]);
 
   return (
     <Grid
@@ -24,11 +25,17 @@ export const ProductCard: React.FC<SeedProduct> = (product) => {
         <NextLink href={`/product/${product.slug}`} prefetch={false}>
           <Link>
             <CardActionArea>
-              <CardMedia
-                component={'img'}
-                className='fadeIn'
-                image={productImage}
-                alt={product.title}
+              <Image
+                src={productImage}
+                // duration={2000}
+                // easing='ease-in-out'
+                // showLoading={true}
+                errorIcon={true}
+                shift="right"
+                distance="400px"
+                shiftDuration={800}
+                bgColor="inherit"
+                alt={product.title || 'loading'}
               />
             </CardActionArea>
           </Link>

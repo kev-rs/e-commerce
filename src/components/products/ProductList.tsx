@@ -7,9 +7,10 @@ interface Props {
 }
 
 export const ProductList: React.FC<Props> = ({ products }) => {
+
   return (
     <Grid container spacing={4}>
-      {products.map((product) => (<ProductCard {...product} key={product.id} />))}
+      {products.map((product) => (<ProductCard {...product} key={product.slug} />))}
     </Grid>
   )
 }

@@ -1,28 +1,36 @@
-import { useEffect } from 'react';
-import type { GetServerSideProps, GetServerSidePropsContext, NextPage } from 'next';
 import { Typography } from '@mui/material';
-import { prisma, SeedProduct } from '../db';
 import { ProductList, ShopLayout } from '../components';
+import Loading from '../components/ui/Loading';
+import { SeedProduct } from '../db';
+import { useProduct } from '../hooks';
+// import type { GetStaticProps, GetStaticPropsContext } from 'next';
+// import axios from 'axios';
 
-const Home: NextPage<{ data: SeedProduct[] }> = ({ data }) => {
+
+
+const Home: React.FC<{ data: SeedProduct[] }> = ({ data: data1 }) => {
+
+  const { products, isLoading } = useProduct('/products');
 
   return (
     <ShopLayout title={'Tesla-Shop'} pageInfo={'Find the best products'}>
       <Typography variant='h1' component={'h1'}>Shop</Typography>
-      <Typography variant='h2' sx={{ mb: 1}}>All products</Typography>
+      <Typography variant='h2' sx={{ mb: 1 }}>All products</Typography>
 
-      <ProductList products={data} />
+      {isLoading
+        ? <Loading />
+        : <ProductList products={products} />}
     </ShopLayout>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+// export const getStaticProps: GetStaticProps = async (ctx: GetStaticPropsContext) => {
 
-  const data = await prisma.seedProduct.findMany();
+//   const { data } = await axios.get('http://localhost:3000/api/products');
 
-  return {
-    props: { data }
-  }
-}
+//   return {
+//     props: { data }
+//   }
+// }
 
 export default Home;

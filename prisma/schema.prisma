@@ -18,16 +18,16 @@ model SeedProduct {
   id          String       @id @default(auto()) @map("_id") @db.ObjectId
   description String
   images      String[]
-  inStock     Float
-  price       Float
+  inStock     Float        @default(0)
+  price       Float        @default(0)
   sizes       ValidSizes[]
   slug        String       @unique
   tags        String[]
   title       String
   type        ValidTypes
   gender      Gender
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt()
+  createdAt   DateTime?    @default(now())
+  updatedAt   DateTime?    @updatedAt()
 }
 
 enum ValidSizes {

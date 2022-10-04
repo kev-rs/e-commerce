@@ -54,10 +54,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }: GetStaticPropsContext) => {
   const { slug } = params as { slug: string };
 
-  const { data: produc } = await axios.get(`http://localhost:3000/api/products/${slug}`)
-  console.log({axiosRes: produc});
-
-  const product = await prisma.seedProduct.findUnique({ where: { slug } });
+  const { data: product } = await axios.get(`http://localhost:3000/api/products/${slug}`);
 
   if (!product) return {
     redirect: {
