@@ -1,7 +1,9 @@
+import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
 
 const Cart = () => {
+
   return (
     <ShopLayout title='Cart' pageInfo='Shopping cart'>
       <Typography variant='h1' component={'h1'}>Cart</Typography>
@@ -33,4 +35,4 @@ const Cart = () => {
   )
 }
 
-export default Cart
+export default Cart;

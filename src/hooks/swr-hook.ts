@@ -1,5 +1,6 @@
 import useSWR, { SWRConfiguration } from 'swr';
-import { SeedProduct } from '../db'
+import { SeedProduct } from '../server/db';
+
 
 export const useProduct = (url: string, config: SWRConfiguration = {}) => {
   const { data, error } = useSWR<SeedProduct[]>(`/api${url}`, config)

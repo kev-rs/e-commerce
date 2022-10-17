@@ -17,7 +17,7 @@
     "sourceMap": true,
     "outDir": "dist",
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/products"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/products", "src/context/cart"],
   "exclude": ["node_modules"]
 }
 

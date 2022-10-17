@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -6,6 +7,112 @@ async function seed() {
   
   try {
     await prisma.$connect();
+    await prisma.countries.deleteMany();
+    await prisma.countries.createMany({
+        data: [
+            {
+                name: 'Costa Rica',
+                code: 'CRI',
+              },
+              {
+                name: 'Argentina',
+                code: 'ARG',
+              },
+              {
+                name: 'Venezuela',
+                code: 'VEN',
+              },
+              {
+                name: 'Guatemala',
+                code: 'GTM',
+              },
+              {
+                name: 'Mexico',
+                code: 'MEX',
+              },
+              {
+                name: 'Belice',
+                code: 'BLZ',
+              },
+              {
+                name: 'Puerto Rico',
+                code: 'PRI',
+              },
+              {
+                name: 'Ecuador',
+                code: 'ECU',
+              },
+              {
+                name: 'Panamá',
+                code: 'PAN',
+              },
+              {
+                name: 'Honduras',
+                code: 'HND',
+              },
+              {
+                name: 'Bolivia',
+                code: 'BOL',
+              },
+              {
+                name: 'El Salvador',
+                code: 'SLV',
+              },
+              {
+                name: 'Peru',
+                code: 'PER',
+              },
+              {
+                name: 'Uruguay',
+                code: 'URY',
+              },
+              {
+                name: 'Colombia',
+                code: 'COL',
+              },
+              {
+                name: 'Republica Dominicana',
+                code: 'DOM',
+              },
+              {
+                name: 'España',
+                code: 'ESP',
+              },
+              {
+                name: 'Paraguay',
+                code: 'PRY',
+              },
+              {
+                name: 'Chile',
+                code: 'CHL',
+              },
+              {
+                name: 'Cuba',
+                code: 'CUB',
+              },
+              {
+                name: 'Nicaragua',
+                code: 'NIC',
+              },
+        ]
+    })
+    await prisma.user.deleteMany();
+    await prisma.user.createMany({
+        data: [
+            {
+                name: 'Kev',
+                password: bcrypt.hashSync('kev123'),
+                email: 'kev@gmail.com',
+                role: 'admin',
+            },
+            {
+                name: 'Isa',
+                password: bcrypt.hashSync('isa123'),
+                email: 'isa@gmail.com',
+                role: 'client',
+            },
+        ]
+    })
     await prisma.seedProduct.deleteMany();
     await prisma.seedProduct.createMany({
       data: [
@@ -793,9 +900,6 @@ async function seed() {
       },
       ]
     })
-
-    const products = await prisma.seedProduct.findMany();
-    console.log({ products });
   } catch (err) {
     console.log(err)
     await prisma.$disconnect()

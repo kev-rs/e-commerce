@@ -1,16 +1,23 @@
 import { Grid } from "@mui/material"
 import { ProductCard } from "./ProductCard";
-import { SeedProduct } from '../../db';
+import { Gender } from '../../server/db'
 
 interface Props {
-  products: SeedProduct[]
+  products: {
+    title: string;
+    images: string[];
+    price: number;
+    inStock: number;
+    slug: string;
+    gender: Gender
+  }[],
+  loading: boolean;
 }
 
-export const ProductList: React.FC<Props> = ({ products }) => {
-
+export const ProductList: React.FC<Props> = ({ products, loading }) => {
   return (
     <Grid container spacing={4}>
-      {products.map((product) => (<ProductCard {...product} key={product.slug} />))}
+      {(loading ? Array.from(new Array(3)) : products).map((product, i) => (<ProductCard {...product} loading={loading} key={loading ? i : product.slug} />))}
     </Grid>
   )
 }

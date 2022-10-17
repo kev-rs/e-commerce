@@ -1,12 +1,13 @@
 import { Box, Button } from '@mui/material'
-import { ValidSizes } from '../../db'
+import { ValidSizes } from '../../server/db';
 
 interface Props {
-  selectedSize: ValidSizes;
+  selectedSize?: ValidSizes;
   sizes: ValidSizes[];
+  handleSize: (size: ValidSizes) => void;
 }
 
-export const ItemSize: React.FC<Props> = ({ selectedSize, sizes }) => {
+export const ItemSize: React.FC<Props> = ({ selectedSize, sizes, handleSize }) => {
   return (
     <Box>
       {sizes.map((size) => (
@@ -14,6 +15,7 @@ export const ItemSize: React.FC<Props> = ({ selectedSize, sizes }) => {
           key={size}
           size='small'
           color={selectedSize === size ? 'primary' : 'info'}
+          onClick={() => handleSize(size)}
         >{size}</Button>
       ))}
     </Box>

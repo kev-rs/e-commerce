@@ -8,3 +8,17 @@ npm-debug.log
 README.md
 .next
 .git
+
+# src/components
+# src/hooks
+# src/styles
+# src/themes
+
+# src/pages/admin
+# src/pages/auth
+# src/pages/cart
+# src/pages/category
+# src/pages/checkout
+# src/pages/orders
+# src/pages/product
+# src/pages/404.tsx

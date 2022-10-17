@@ -1,18 +1,31 @@
 import { useMemo, useState } from 'react';
 import NextLink from 'next/link'
-import { Box, Card, CardActionArea, Grid, Link, Typography } from "@mui/material"
-import { SeedProduct } from '../../db';
-import Image from 'mui-image';
+import { Box, Card, CardActionArea, CardMedia, Chip, Grid, Link, Skeleton, Typography } from "@mui/material"
+import { Gender } from '../../server/db';
 
-export const ProductCard: React.FC<SeedProduct> = (product) => {
+type Product = {
+  title: string;
+  images: string[];
+  price: number;
+  inStock: number;
+  slug: string;
+  gender: Gender
+}
 
+interface Props {
+  loading: boolean;
+}
+
+export const ProductCard: React.FC<Product & Props> = (product) => {
   const [isHovered, setIsHovered] = useState(false);
+  let isLoading = product.loading;
 
   const productImage = useMemo(() => {
+    if (isLoading) return ``
     return isHovered
       ? `/products/${product.images[1]}`
       : `/products/${product.images[0]}`
-  }, [ isHovered, product.images ]);
+  }, [isHovered, product.images, isLoading]);
 
   return (
     <Grid
@@ -25,26 +38,46 @@ export const ProductCard: React.FC<SeedProduct> = (product) => {
         <NextLink href={`/product/${product.slug}`} prefetch={false}>
           <Link>
             <CardActionArea>
-              <Image
-                src={productImage}
-                // duration={2000}
-                // easing='ease-in-out'
-                // showLoading={true}
-                errorIcon={true}
-                shift="right"
-                distance="400px"
-                shiftDuration={800}
-                bgColor="inherit"
-                alt={product.title || 'loading'}
-              />
+              {
+                product.inStock === 0 && (
+                  <Chip
+                    color='error'
+                    label='Sold out'
+                    sx={{ position: 'absolute', zIndex: 99, top: '10px', left: '10px' }}
+                  />
+                )
+              }
+              {isLoading
+                ? <Skeleton sx={{ height: 300 }} animation="wave" variant="rectangular" />
+                : (
+                  <CardMedia
+                    component='img'
+                    className='fadeIn'
+                    image={productImage}
+                    alt={product.title}
+                  />
+                )
+              }
             </CardActionArea>
           </Link>
         </NextLink>
       </Card>
 
       <Box sx={{ mt: 1 }} className='fadeIn'>
-        <Typography fontWeight={700}>{product.title}</Typography>
-        <Typography fontWeight={500}>${product.price}</Typography>
+        {isLoading
+          ? (
+            <>
+              <Skeleton animation="wave" variant="text" width='70%' />
+              <Skeleton animation="wave" variant="text" width='10%' />
+            </>
+          )
+          : (
+            <>
+              <Typography fontWeight={700}>{product.title}</Typography>
+              <Typography fontWeight={500}>${product.price}</Typography>
+            </>
+          )
+        }
       </Box>
     </Grid>
   )
