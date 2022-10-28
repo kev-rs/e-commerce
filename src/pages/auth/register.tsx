@@ -1,14 +1,17 @@
-import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
+import { useEffect } from 'react';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
+import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { AuthLayout } from '../../components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from '../../utils/trpc';
-import { useRouter } from 'next/router';
 import { ErrorOutline } from '@mui/icons-material';
 import Cookies from 'js-cookie';
-import { useEffect } from 'react';
+import { unstable_getServerSession as getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 const schema = z.object({
   name: z.string().min(1, 'Please insert your name').max(16),
@@ -130,6 +133,22 @@ const RegisterPage = () => {
       </Box>
     </AuthLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const { p = '/' } = ctx.query as { p: string };
+
+  if(session) return {
+    redirect: { destination: p, permanent: false }
+  };
+
+  return {
+    props: {
+      session
+    }
+  }
 }
 
 export default RegisterPage

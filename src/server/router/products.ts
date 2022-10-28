@@ -11,14 +11,14 @@ const defaultSelect = Prisma.validator<Prisma.SeedProductSelect>()({
 export const productsRouter = trpc.router({
   getProducts: trpc.procedure
     .input(z.enum(['kid', 'men', 'women', 'unisex']).optional())
-      .query(async ({ input, ctx }) => {
-        const products = await prisma.seedProduct.findMany({
-          where: {
-            gender: z.enum(['kid', 'men', 'women', 'unisex']).safeParse(input).success ? input : {}
-          },
-          select: defaultSelect,
-        });
-        return products;
+    .query(async ({ input, ctx }) => {
+      const products = await prisma.seedProduct.findMany({
+        where: {
+          gender: z.enum(['kid', 'men', 'women', 'unisex']).safeParse(input).success ? input : {}
+        },
+        select: defaultSelect,
+      });
+      return products;
     }),
   search: trpc.procedure
     .input(z.object({

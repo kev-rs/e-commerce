@@ -13,6 +13,7 @@ interface Store {
   updateProduct: (product: ICart) => void;
   removeProduct: (product: ICart) => void;
   updateAddress: (info: UserInfo) => void;
+  reset: () => void;
 }
 
 export const CartContext = createContext<Store>({} as Store);

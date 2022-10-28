@@ -17,7 +17,8 @@ export const AuthLayout: React.FC<Props> = ({ title, children }) => {
 
       <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
         <NextLink href='/' passHref>
-          <Link fontSize={40}>
+          <Link fontSize={40} color='red'>
+            <ShoppingCart />
             Tesla Shop
             <ShoppingCart />
           </Link>

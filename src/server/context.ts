@@ -3,6 +3,8 @@ import * as trpcNext from '@trpc/server/adapters/next';
 import { prisma, UserStatus, Role } from './db';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
+import { unstable_getServerSession as getServerSession } from 'next-auth';
+import { authOptions as nextAuthOptions } from '../pages/api/auth/[...nextauth]';
 
 interface IUser {
   email: string;
@@ -24,41 +26,8 @@ export async function createContext(opts?: trpcNext.CreateNextContextOptions) {
   const req = opts?.req;
   const res = opts?.res;
 
-  async function getAuthedUser() {
-    const token = req?.cookies.tokenAuth as string;
-    // const cart = req?.cookies.cart as string;
-    const cartCookie = cookie.serialize('cart', 'deleted', {
-      maxAge: 0,
-      httpOnly: true,
-      path: '/',
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-    })
-    if(!token) {
-      res?.setHeader('Set-Cookie', cartCookie);
-      return null;
-    }
-    try {
-      const user = jwt.verify(token, `${process.env.JWT_SECRET_KEY}`) as IUser;
-      return { ...user, token };
-    } catch (err) {
-      const serialized = cookie.serialize('tokenAuth', 'deleted', {
-        maxAge: 0,
-        httpOnly: true,
-        path: '/',
-        sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
-      })
-      
-      res?.setHeader('Set-Cookie', serialized);
-      res?.setHeader('Set-Cookie', cartCookie);
-      return null;
-    }
-  }
-
-  const user = await getAuthedUser();
-  const query = req?.query;
-  return { req, res, prisma, user, query};
+  const session =  req && res && await getServerSession(req, res, nextAuthOptions)
+  return { prisma, session };
 }
 
 export type Context = trpc.inferAsyncReturnType<typeof createContext>;

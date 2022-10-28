@@ -1,8 +1,10 @@
-import type { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
+import { useRouter } from 'next/router';
 
 const Cart = () => {
+
+  const router = useRouter();
 
   return (
     <ShopLayout title='Cart' pageInfo='Shopping cart'>
@@ -25,6 +27,7 @@ const Cart = () => {
                   color='secondary'
                   className='circular-btn'
                   fullWidth
+                  onClick={() => router.push('/checkout/address')}
                 >Checkout</Button>
               </Box>
             </CardContent>

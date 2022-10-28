@@ -1,25 +1,46 @@
 import { trpc } from '../trpc';
 import { z } from 'zod';
-import { prisma, Prisma } from '../db';
+import { prisma, Prisma, User, Role, UserStatus } from '../db';
 import { TRPCError } from '@trpc/server';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import bcrypt from 'bcryptjs';
 
 const userSelect = Prisma.validator<Prisma.UserSelect>()({
-  email: true,name: true,id: true,role: true,status: true,
+  email: true, name: true, id: true, role: true, status: true,
 });
 
 export interface IUser {
   email: string;
   name: string;
   id: string;
-  status: string;
-  role: string;
+  status: UserStatus;
+  role: Role;
 }
+
+// const isAuthed = trpc.middleware(({ next, ctx }) => {
+//   if(!ctx.session?.user) throw new TRPCError({ code: 'UNAUTHORIZED' });
+
+//   return next({
+//     ctx: {
+//       user: ctx.session.user,
+//     }
+//   })
+// })
+
+// export const protectedProcedure = trpc.procedure.use(isAuthed)
 
 export const authRouter = trpc.router({
   //? Login
+  // getSession: trpc.procedure
+  //   .query(({ ctx }) => {
+  //     return ctx.session;
+  //   }),
+  // admin: protectedProcedure.query(({ ctx }) => {
+  //   return {
+  //     secret: 'kev-secret'
+  //   }
+  // }),
   login: trpc.procedure
     .input(z.object({
       email: z.string().min(1).email(),
@@ -43,7 +64,7 @@ export const authRouter = trpc.router({
       });
 
       // update user status to online
-      const authed_user: IUser = await prisma.user.update({
+      const authed_user = await prisma.user.update({
         where: { email: input.email },
         data: { status: 'online' },
         select: userSelect,
@@ -89,6 +110,7 @@ export const authRouter = trpc.router({
         message: 'Email address already in use',
       });
 
+      // create user
       const createdUser = await prisma.user.create({
         data: {
           email: input.email.toLowerCase(),

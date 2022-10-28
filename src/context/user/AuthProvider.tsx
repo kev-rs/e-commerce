@@ -3,6 +3,7 @@ import { Provider } from './store';
 import { Role, UserStatus, prisma } from '../../server/db';
 import { authReducer, TypeActions } from './authReducer';
 import { trpc } from '../../utils/trpc';
+import { useSession } from 'next-auth/react';
 
 export type User = {
   email?: string;
@@ -33,18 +34,16 @@ const init = (): USER_STATE => {
 export const AuthProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   const [ state, dispatch ] = useReducer<Reducer<USER_STATE, TypeActions>, USER_STATE>(authReducer, USER_INITIAL_STATE, init);
-  const { data, isSuccess } = trpc.auth.user.useQuery();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    console.log(state)
-  },[state])
-  useEffect(() => {
-    if(!isSuccess) return;
-    dispatch({ type: '[auth] - Load user', paylaoad: data });
-  }, [ data, isSuccess ]);
+    if(status === 'authenticated') {
+      dispatch({ type: '[auth] - Load user', payload: { user: session.user as User, status: 'online' } })
+    }
+  }, [ status, session ]);
 
   const auth_user = (user: User) => {
-    dispatch({ type: '[auth] - User', paylaoad: { user, status: 'online' }});
+    dispatch({ type: '[auth] - User', payload: { user, status: 'online' }});
   }
 
   return (

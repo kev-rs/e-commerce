@@ -46,7 +46,7 @@ export const CartList: React.FC<Props> = ({ editable = false }) => {
 
               {editable
                 ? <ItemCounter amount={product.amount} maxValue={product.inStock} handleAmount={( amount, maxValue ) => handleUpdate(amount, maxValue, product)}  />
-                : <Typography variant='h4'>Amount: {product.amount}</Typography>}
+                : <Typography variant='h6'>amount: {product.amount}</Typography>}
             </Box>
           </Grid>
           <Grid item xs={2} display='flex' alignItems='center' flexDirection={'column'}>

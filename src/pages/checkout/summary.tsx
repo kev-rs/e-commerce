@@ -1,15 +1,48 @@
-import { useContext, useMemo } from 'react';
+import { useContext, useState } from 'react';
 import NextLink from 'next/link';
-import { Box, Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
 import { CartContext } from '../../context/cart/store';
 import { trpc } from '../../utils/trpc';
+import { useRouter } from 'next/router';
+import { LoadingButton } from '@mui/lab';
+import { LoginOutlined } from '@mui/icons-material';
+// import { trpc } from '../../utils/trpc';
 
 const SummaryPage = () => {
+  // const { data } = trpc.countries.getAll.useQuery();
+  // const country = useMemo(() => data?.find((c) => c.code === info?.country)?.name, [ data, info?.country ])
+  const [ isPosting, setIsPosting ] = useState(false);
+  const router = useRouter();
+  const { shippingAddress:info, numberOfItems, subTotal, taxes, total, cart, reset } = useContext(CartContext);
+  const mutation = trpc.orders.add.useMutation({
+    onSuccess: ({ id }) => {
+      router.push(`/orders/${id}`)
+      console.log({id})
+      reset();
+      setIsPosting(false);
+    },
+    onError: () => {
+      setIsPosting(false);
+    },
+    onMutate: () => {
+      setIsPosting(true);
+    }
+  });
 
-  const { shippingAddress:info, numberOfItems } = useContext(CartContext);
-  const { data, isSuccess, isLoading, isFetching } = trpc.countries.getAll.useQuery();
-  const country = useMemo(() => data?.find((c) => c.code === info?.country)?.name, [ data, info?.country ])
+  const handleOrder = () => {
+    setIsPosting(true);
+    mutation.mutate({
+      products: [...cart],
+      shippingAddress: {...info},
+      numberOfItems: numberOfItems,
+      subTotal: subTotal,
+      tax: taxes,
+      paidOut: false,
+      total: total,
+    })
+    console.log(mutation)
+  }
 
 
   return (
@@ -23,7 +56,7 @@ const SummaryPage = () => {
         <Grid item xs={12} sm={5}>
           <Card className='summary-card'>
             <CardContent>
-              <Typography variant='h2'>Summary ({numberOfItems})</Typography>
+              <Typography variant='h4'>Summary ({numberOfItems})</Typography>
               <Divider sx={{ my: 1 }} />
 
               <Box display={'flex'} justifyContent='space-between'>
@@ -38,7 +71,7 @@ const SummaryPage = () => {
               <Typography>{info?.name} {info?.lastName}</Typography>
               <Typography>{info?.address} {info?.address2}</Typography>
               <Typography>{info?.city} {info?.postal}</Typography>
-              <Typography>{country}</Typography>
+              <Typography>{info?.country}</Typography>
               <Typography>{info?.phone}</Typography>
 
               <Divider sx={{ my: 1 }} />
@@ -54,11 +87,24 @@ const SummaryPage = () => {
               <OrderSummary />
 
               <Box sx={{ mt: 3 }}>
-                <Button
-                  color='secondary'
-                  className='circular-btn'
-                  fullWidth
-                >Confirm Order</Button>
+                <LoadingButton
+                  size="small"
+                  color="secondary"
+                  type='submit'
+                  loading={isPosting}
+                  loadingPosition="start"
+                  startIcon={<LoginOutlined />}
+                  variant="outlined"
+                  onClick={handleOrder}
+                >
+                  Confirm order
+                </LoadingButton>
+
+                <Chip 
+                  color='error'
+                  label={mutation.error?.message}
+                  sx={{ display: mutation.isError ? 'block' : 'none', mt: 2 }}
+                />
               </Box>
             </CardContent>
           </Card>

@@ -1,25 +1,30 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import { NextResponse } from 'next/server';
+import { withAuth } from 'next-auth/middleware';
 
-export async function middleware(req: NextRequest) {
-  const cart = req.cookies.get('cart');
+export default withAuth(
+  async function middleware(req) {
+    const cart = JSON.parse(req.cookies.get('cart') || '[]');
+    const user_info = req.cookies.get('user-info') ? JSON.parse(req.cookies.get('user-info')!) : undefined;
 
-  if(req.nextUrl.pathname.endsWith('/cart')) {
-    if(!cart) return NextResponse.redirect(new URL('/cart/empty', req.url));
-  }
+    if(!req.nextUrl.pathname.startsWith('/cart/empty')) {
+      if(!cart) return NextResponse.redirect(new URL('/cart/empty', req.url));
+      if(cart.length < 1) return NextResponse.redirect(new URL('/cart/empty', req.url));
+    }
 
-  const tokenAuth = req.cookies.get('tokenAuth');
-  if(!tokenAuth) return NextResponse.redirect(new URL(`/auth/login?p=${req.nextUrl.pathname}`, req.url));
-  
-  try {
-    await jwtVerify(tokenAuth, new TextEncoder().encode(`${process.env.JWT_SECRET_KEY}`));
-    return NextResponse.next();
-  } catch (err) {
-    return NextResponse.redirect(new URL(`/auth/login?p=${req.nextUrl.pathname}`, req.url));
-  }
-
-  
-}
+    if(req.nextUrl.pathname.startsWith('/checkout/summary')) {
+      if(!user_info) return NextResponse.redirect(new URL('/checkout/address', req.url));
+    }
+  },
+  {
+    callbacks: {
+      authorized: ({ req, token }) => !!token
+    },
+    pages: {
+      signIn: '/auth/login',
+      error: '/auth/login'
+    }
+  },
+)
 
 export const config = {
   matcher: ['/cart/:path*', '/checkout/:path*']

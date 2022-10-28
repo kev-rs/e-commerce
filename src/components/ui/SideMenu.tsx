@@ -1,14 +1,14 @@
-import { KeyboardEvent, KeyboardEventHandler, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { Box, Divider, Drawer, IconButton, Input, InputAdornment, List, ListItem, ListItemIcon, ListItemText, ListSubheader } from "@mui/material"
 import { AccountCircleOutlined, AdminPanelSettings, CategoryOutlined, ConfirmationNumberOutlined, EscalatorWarningOutlined, FemaleOutlined, LoginOutlined, MaleOutlined, SearchOutlined, VpnKeyOutlined } from "@mui/icons-material"
 import { UIContext } from "../../context";
-import { useRouter } from 'next/router';
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import { trpc } from '../../utils/trpc';
 import { AuthContext } from '../../context/user/store';
 import Cookies from 'js-cookie';
+import { signOut } from 'next-auth/react';
 
 const schema = z.object({
   query: z.string().min(1, 'Required')
@@ -17,14 +17,14 @@ const schema = z.object({
 type FormValues = { query: string };
 
 export const SideMenu = () => {
-  const utils = trpc.useContext();
-  const mutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      setStatus(false);
-      Cookies.remove('data-form');
-      utils.auth.user.invalidate()
-    }
-  });
+  // const utils = trpc.useContext();
+  // const mutation = trpc.auth.logout.useMutation({
+  //   onSuccess: () => {
+  //     setStatus(false);
+  //     Cookies.remove('data-form');
+  //     utils.auth.user.invalidate()
+  //   }
+  // });
   const { status, setStatus } = useContext(UIContext);
   const { status: auth_status, user } = useContext(AuthContext);
   const router = useRouter();
@@ -50,8 +50,15 @@ export const SideMenu = () => {
   }, [unregister, query]);
 
   const handleLogout = () => {
-    router.reload();
-    mutation.mutate();
+    signOut();
+    Cookies.remove('user-info');
+    Cookies.remove('cart');
+    setStatus(false);
+    // mutation.mutate();
+  }
+
+  const handleLogin = () => {
+    navigateTo(`/auth/login?p=${router.asPath}`)
   }
 
 
@@ -85,7 +92,7 @@ export const SideMenu = () => {
             auth_status === 'offline'
               ? (
                 <>
-                  <ListItem button onClick={() => navigateTo(`/auth/login?p=${router.asPath}`)}>
+                  <ListItem button onClick={handleLogin}>
                     <ListItemIcon>
                       <VpnKeyOutlined />
                     </ListItemIcon>
@@ -102,7 +109,7 @@ export const SideMenu = () => {
                     <ListItemText primary={'Dashboard'} />
                   </ListItem>
 
-                  <ListItem button>
+                  <ListItem button onClick={() => navigateTo('/orders/history')}>
                     <ListItemIcon>
                       <ConfirmationNumberOutlined />
                     </ListItemIcon>

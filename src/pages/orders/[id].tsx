@@ -1,9 +1,17 @@
+import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { Box, Button, Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
 import NextLink from 'next/link';
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
+import { createProxySSGHelpers } from '@trpc/react/ssg';
+import { appRouter } from '../../server/router/_app';
+import { createContext } from '../../server/context';
+import superjson from 'superjson';
 
-const OrderPage = () => {
+const OrderPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ order }) => {
+
+  console.log({order})
+
   return (
     <ShopLayout title='Payout summary order - 23SF12Vb' pageInfo='Shopping cart summary'>
       <Typography variant='h1' component={'h1'}>Summary</Typography>
@@ -31,7 +39,7 @@ const OrderPage = () => {
         <Grid item xs={12} sm={5}>
           <Card className='summary-card'>
             <CardContent>
-              <Typography variant='h2'>Summary (3 products)</Typography>
+              <Typography variant='h2'>Summary ({order?.numberOfItems})</Typography>
               <Divider sx={{ my: 1 }} />
 
               <Box display={'flex'} justifyContent='space-between'>
@@ -43,11 +51,11 @@ const OrderPage = () => {
                 </NextLink>
               </Box>
 
-              <Typography>Kev BS</Typography>
-              <Typography>342 City land</Typography>
-              <Typography>Stittsville, HYA 23S</Typography>
-              <Typography>Canada</Typography>
-              <Typography>+1 864 23423 432</Typography>
+              <Typography>{order?.shippingAddress?.name} {order?.shippingAddress?.lastName}</Typography>
+              <Typography>{order?.shippingAddress?.address} {order?.shippingAddress?.address2}</Typography>
+              <Typography>{order?.shippingAddress?.city} {order?.shippingAddress?.postal}</Typography>
+              <Typography>{order?.shippingAddress?.country}</Typography>
+              <Typography>{order?.shippingAddress?.phone}</Typography>
 
               <Divider sx={{ my: 1 }} />
 
@@ -79,6 +87,36 @@ const OrderPage = () => {
       </Grid>
     </ShopLayout>
   )
+}
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext<{ id: string }>) => {
+
+  const ssg = createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContext(),
+    transformer: superjson,
+    // queryClientConfig: {
+    //   defaultOptions: {
+    //     queries: {
+    //       // refetchOnReconnect: false
+    //     }
+    //   }
+    // }
+  });
+  
+  const id = ctx.params?.id as string;
+  console.log({idasd: id})
+
+  // if(!id) return { redirect: { destination: '/', permanent: false } };
+
+  const order = await ssg.orders.get.fetch({ id });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      order,
+    }
+  }
 }
 
 export default OrderPage;

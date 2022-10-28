@@ -8,6 +8,7 @@ type Actions =
   | { type: 'remove'; payload: ICart }
   | { type: 'load'; payload: ICart[] }
   | { type: 'load-user-address'; payload: UserInfo }
+  | { type: 'order-done' }
   | {
       type: 'summary';
       payload: {
@@ -49,6 +50,10 @@ export const cartReducer = (state: CartState, action: Actions): CartState => {
           return action.payload;
         }),
       };
+    case 'order-done':
+      return {
+        ...state, cart: [], numberOfItems: 0, subTotal: 0, taxes: 0, total: 0
+      }
     default:
       return state;
   }
