@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from 'next-auth/middleware';
 
 export default withAuth(
@@ -6,7 +6,7 @@ export default withAuth(
     const cart = JSON.parse(req.cookies.get('cart') || '[]');
     const user_info = req.cookies.get('user-info') ? JSON.parse(req.cookies.get('user-info')!) : undefined;
 
-    if(!req.nextUrl.pathname.startsWith('/cart/empty')) {
+    if(!req.nextUrl.pathname.startsWith('/cart/empty') && !req.nextUrl.pathname.includes('/orders')) {
       if(!cart) return NextResponse.redirect(new URL('/cart/empty', req.url));
       if(cart.length < 1) return NextResponse.redirect(new URL('/cart/empty', req.url));
     }
@@ -27,5 +27,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ['/cart/:path*', '/checkout/:path*']
+  matcher: ['/cart/:path*', '/checkout/:path*', '/orders/:path*'],
 }

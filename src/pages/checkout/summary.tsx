@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { Box, Button, Card, CardContent, Chip, Divider, Grid, Link, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
@@ -7,22 +7,19 @@ import { trpc } from '../../utils/trpc';
 import { useRouter } from 'next/router';
 import { LoadingButton } from '@mui/lab';
 import { LoginOutlined } from '@mui/icons-material';
-// import { trpc } from '../../utils/trpc';
 
 const SummaryPage = () => {
-  // const { data } = trpc.countries.getAll.useQuery();
-  // const country = useMemo(() => data?.find((c) => c.code === info?.country)?.name, [ data, info?.country ])
-  const [ isPosting, setIsPosting ] = useState(false);
+  const [ isPosting, setIsPosting ] = useState<boolean>(false);
   const router = useRouter();
   const { shippingAddress:info, numberOfItems, subTotal, taxes, total, cart, reset } = useContext(CartContext);
   const mutation = trpc.orders.add.useMutation({
-    onSuccess: ({ id }) => {
-      router.push(`/orders/${id}`)
-      console.log({id})
+    onSuccess: async ({ id, }) => {
+      await router.push(`/orders/${id}`);
       reset();
       setIsPosting(false);
     },
-    onError: () => {
+    onError: (err) => {
+      console.log({err});
       setIsPosting(false);
     },
     onMutate: () => {
@@ -34,14 +31,15 @@ const SummaryPage = () => {
     setIsPosting(true);
     mutation.mutate({
       products: [...cart],
-      shippingAddress: {...info},
-      numberOfItems: numberOfItems,
-      subTotal: subTotal,
+      shippingAddress: {...info!},
+      numberOfItems,
+      subTotal,
       tax: taxes,
       paidOut: false,
-      total: total,
+      total,
+    }, {
+      onError: console.log
     })
-    console.log(mutation)
   }
 
 

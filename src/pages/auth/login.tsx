@@ -61,7 +61,6 @@ const Login = () => {
     if(res?.error) return setError('password', { type: 'wrong', message: 'Your password is incorrect' }, { shouldFocus: true });
     router.push(router.query.p?.toString() || router.query.callbackUrl?.toString() || '/')
   }
-  // console.log({isSubmitSuccessful, isSubmitted,isSubmitting })
 
 
   return (
@@ -149,7 +148,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const { callbackUrl } = ctx.query as { callbackUrl: string }
   const { p = '/' } = ctx.query as { p: string };
-  console.log({callbackUrl, p})
   if(session) return { redirect: { destination: callbackUrl ? callbackUrl : p, permanent: false } };
 
   return {

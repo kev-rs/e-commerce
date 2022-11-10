@@ -6,8 +6,8 @@ import { ordersRouter } from './orders';
 
 export const appRouter = trpc.router({
   products: productsRouter,
-  auth: authRouter,
   countries: countriesRouter,
   orders: ordersRouter,
+  // auth: authRouter,
 })
 export type AppRouter = typeof appRouter;

@@ -43,3 +43,70 @@
   from {transform: translateX(0)}
   to {transform: translateX(-10px)}
 }
+
+.success-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #f1f1f1;
+  height: 50%;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+.icon {
+  margin: 5px 0;
+  /* width: 400px; */
+}
+
+.title {
+  margin: 5px 0;
+  color: #274494;
+  text-transform: capitalize
+}
+
+.email-msg {
+  margin: 5px 0;
+  font-weight: 900
+}
+
+.description {
+  margin: 5px 0;
+  margin-bottom: 70px;
+}
+
+.email {
+  text-decoration: none;
+  margin-left: 5px;
+  color: #e7655e;
+}
+
+.btn {
+  display: block;
+  background: #d34a4a;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  width: 80%;
+  font-size: 14px;
+  transition: all .3s;
+  border: none;
+}
+
+.btn:hover {
+  background-color: #e88383;
+  cursor: pointer;
+}
+
+.btn:active {
+  width: 78%;
+  background: #d34a4a;
+}

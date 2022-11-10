@@ -1,7 +1,18 @@
+import type { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import NextLink from 'next/link';
 import { Chip, Grid, Typography, Link } from "@mui/material";
 import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { ShopLayout } from "../../components";
-import NextLink from 'next/link';
+import { createProxySSGHelpers } from '@trpc/react/ssg';
+import { appRouter } from '../../server/router/_app';
+import { createContext } from '../../server/context';
+import superjson from 'superjson';
+import { unstable_getServerSession as getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
+import type { Order as OrderDB, ShippingAddress } from '../../server/db';
+import { useMemo } from 'react';
+
+type Order = OrderDB & { shippingAddress: ShippingAddress }
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 100 },
@@ -20,28 +31,24 @@ const columns: GridColDef[] = [
     }
   },
   {
-    field: 'order', headerName: 'Order', width: 200,sortable: false, renderCell: ({ row }: GridRenderCellParams) => (
-      <NextLink href={`/orders/${row.id}`} passHref>
+    field: 'order', headerName: 'Order', width: 200, sortable: false, renderCell: ({ row }: GridRenderCellParams) => (
+      <NextLink href={`/orders/${row.orderId}`} passHref>
         <Link underline="always">Show order</Link>
       </NextLink>
     )
   }
 ];
 
-const rows = [
-  { id: 1, paid: true, fullname: 'Kev BS'},
-  { id: 2, paid: false, fullname: 'Dev Sol'},
-  { id: 3, paid: true, fullname: 'Melissa Salazar'},
-  { id: 4, paid: false, fullname: 'Frank Saliza'},
-  { id: 5, paid: true, fullname: 'Fila Sass'},
-]
+const HistoryPage: React.FC<{ orders: Order[] }> = ({ orders }) => {
+  const rows = useMemo(() => {
+    return orders.map(({ id, paidOut, shippingAddress, userId }, i) => ({ id: i + 1, paid: paidOut, fullname: `${shippingAddress.name} ${shippingAddress.lastName}`, orderId: id }));
+  }, [ orders ]);
 
-const HistoryPage = () => {
   return (
     <ShopLayout title='Order history - TeslaShop.com' pageInfo="Your order-history">
       <Typography variant='h1' component='h1'>Orders history</Typography>
 
-      <Grid container>
+      <Grid container className='fadeIn'>
         <Grid item xs={12} sx={{ height: 650, width: '100%' }}>
           <DataGrid
             rows={rows}
@@ -53,6 +60,29 @@ const HistoryPage = () => {
       </Grid>
     </ShopLayout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+
+  if(!session) return { redirect: { destination: '/auth/login?p=/orders/history', permanent: false }};
+
+  const ssg = await createProxySSGHelpers({
+    router: appRouter,
+    ctx: await createContext(),
+    transformer: superjson,
+  })
+
+  const user = await ssg.orders.getAll.fetch({ email: session.user!.email! })
+
+  if(!user) return { redirect: { destination: '/', permanent: false } };
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      orders: user.orders,
+    }
+  }
 }
 
 export default HistoryPage;

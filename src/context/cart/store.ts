@@ -8,7 +8,7 @@ interface Store {
   subTotal: number;
   taxes: number;
   total: number;
-  shippingAddress?: UserInfo
+  shippingAddress: UserInfo | null
   addProduct: (product: ICart) => void;
   updateProduct: (product: ICart) => void;
   removeProduct: (product: ICart) => void;

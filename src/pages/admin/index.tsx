@@ -1,11 +1,12 @@
-import { ShopLayout } from '../../components'
+import { DashboardOutlined } from '@mui/icons-material';
+import { AdminLayout, ShopLayout } from '../../components'
 
-const Admin: React.FC = () => {
+const AdminDashboard: React.FC = () => {
   return (
-    <ShopLayout title='Admin' pageInfo='Admin info'>
+    <AdminLayout title='Dashboard' subTitle='General info' icon={<DashboardOutlined />}>
       <h1>Admin Page</h1>
-    </ShopLayout>
+    </AdminLayout>
   )
 }
 
-export default Admin;
+export default AdminDashboard;

@@ -5,21 +5,22 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { LoginOutlined } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { CartContext } from '../../context/cart/store';
-import { trpc } from '../../utils/trpc';
+// import { trpc } from '../../utils/trpc';
 
 const schema = z.object({
-  name: z.string().min(1, 'Required').optional(),
-  lastName: z.string().min(1, 'Required').optional(),
-  address: z.string().min(1, 'Required').optional(),
-  address2: z.string().optional().optional(),
-  postal: z.string().min(1, 'Required').optional(),
-  city: z.string().min(1, 'Required').optional(),
-  country: z.string().min(1, 'Required').optional(),
-  phone: z.string().min(1, 'Required').optional()
+  name: z.string().min(1, 'Required'),
+  lastName: z.string().min(1, 'Required'),
+  address: z.string().min(1, 'Required'),
+  address2: z.string(),
+  postal: z.string().min(1, 'Required'),
+  city: z.string().min(1, 'Required'),
+  country: z.string().min(1, 'Required'),
+  country_code: z.string().default('US'),
+  phone: z.string().min(1, 'Required')
 })
 
 export type UserInfo = z.infer<typeof schema>
@@ -30,7 +31,7 @@ const AddressPage = () => {
   const { updateAddress } = useContext(CartContext);
   const [ info ] = useState<UserInfo>(JSON.parse(Cookies.get('user-info') || '{}'));
 
-  const { register, handleSubmit, formState: { errors, isSubmitSuccessful, isSubmitted, isSubmitting } } = useForm<UserInfo>({
+  const { register, handleSubmit, formState: { errors, isSubmitSuccessful, isSubmitting } } = useForm<UserInfo>({
     resolver: zodResolver(schema),
     mode: 'all',
     shouldFocusError: true,
@@ -41,6 +42,8 @@ const AddressPage = () => {
     updateAddress(data);
     router.push('/checkout/summary');
   }
+
+  useEffect(() => { router.prefetch('/checkout/summary') }, [ router ]);
 
   return (
     <ShopLayout title='Checkout' pageInfo='Confirm address destination'>

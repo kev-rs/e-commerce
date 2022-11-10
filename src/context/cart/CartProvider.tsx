@@ -4,18 +4,19 @@ import { cartReducer } from './cartReducer';
 import { Provider } from './store';
 import Cookie from 'js-cookie';
 // import { UserInfo } from '../../pages/checkout/address';
-import { Order } from '../../server/db';
-import { trpc } from '../../utils/trpc';
+// import { Order } from '../../server/db';
+// import { trpc } from '../../utils/trpc';
 
 interface UserInfo {
-  name?: string;
-  lastName?: string;
-  address?:  string;
-  address2?: string;
-  postal?: string;
-  city?: string;
-  country?:  string;
-  phone?:  string;
+  name: string;
+  lastName: string;
+  address:  string;
+  address2: string;
+  postal: string;
+  city: string;
+  country:  string;
+  country_code: string;
+  phone:  string;
 }
 
 export interface CartState {
@@ -24,7 +25,7 @@ export interface CartState {
   subTotal: number;
   taxes: number;
   total: number;
-  shippingAddress?: UserInfo
+  shippingAddress: UserInfo | null
 }
 
 const CART_INITIAL_STATE: CartState = {
@@ -33,13 +34,13 @@ const CART_INITIAL_STATE: CartState = {
   subTotal: 0,
   taxes: 0,
   total: 0,
-  shippingAddress: undefined,
+  shippingAddress: null,
 }
 
 export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   const [ state, dispatch ] = useReducer(cartReducer, CART_INITIAL_STATE);
-
+  
   useEffect(() => {
     const info = Cookie.get('user-info') ? JSON.parse(Cookie.get('user-info')!) : {};
     dispatch({ type: 'load-user-address', payload: info })

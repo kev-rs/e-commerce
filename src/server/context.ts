@@ -1,8 +1,6 @@
 import * as trpc from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
 import { prisma, UserStatus, Role } from './db';
-import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { authOptions as nextAuthOptions } from '../pages/api/auth/[...nextauth]';
 

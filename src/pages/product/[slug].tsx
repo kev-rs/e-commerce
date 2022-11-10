@@ -17,7 +17,7 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
   const router = useRouter();
   const { addProduct } = useContext(CartContext);
 
-  const [cartProduct, setCartProduct] = useState<ICart>({
+  const [ cartProduct, setCartProduct ] = useState<ICart>({
     id: product.id,
     image: product.images[0],
     inStock: product.inStock,
@@ -41,6 +41,12 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
     if (!cartProduct.size) return;
     addProduct({ ...cartProduct });
     router.push('/cart');
+  }
+
+  const handleBuy = () => {
+    if (!cartProduct.size) return;
+    addProduct({ ...cartProduct });
+    router.push('/checkout/address');
   }
 
   return (
@@ -80,9 +86,14 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
               !product ? <Skeleton animation="wave" variant="text" width='40%' />
                 : product.inStock > 0
                   ? (
-                    <Button color='secondary' className='circular-btn' onClick={handleAdd}>
-                      {cartProduct.size ? 'Add to cart' : 'Select a size'}
-                    </Button>
+                    <>
+                      <Button color='secondary' className='circular-btn' onClick={handleAdd} sx={{marginBottom: 2}}>
+                        {cartProduct.size ? 'Add to cart' : 'Select a size'}
+                      </Button>
+                      <Button color='error' className='circular-btn' onClick={handleBuy} disabled={!cartProduct.size}>
+                        By Now
+                      </Button>
+                    </>
                   )
                   : (
                     <Chip label='Sold out' color='error' variant='outlined' />
