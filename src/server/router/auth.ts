@@ -1,10 +1,11 @@
 import { trpc } from '../trpc';
-import { z } from 'zod';
-import { prisma, Prisma, User, Role, UserStatus } from '../db';
+import { prisma, Prisma, Role, UserStatus } from '../db';
 import { TRPCError } from '@trpc/server';
-import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
 import bcrypt from 'bcryptjs';
+import { signUpSchema } from '../../common/validation/auth';
+// import { z } from 'zod';
+// import jwt from 'jsonwebtoken';
+// import cookie from 'cookie';
 
 const userSelect = Prisma.validator<Prisma.UserSelect>()({
   email: true, name: true, id: true, role: true, status: true,
@@ -18,29 +19,28 @@ export interface IUser {
   role: Role;
 }
 
-// const isAuthed = trpc.middleware(({ next, ctx }) => {
-//   if(!ctx.session?.user) throw new TRPCError({ code: 'UNAUTHORIZED' });
-
-//   return next({
-//     ctx: {
-//       user: ctx.session.user,
-//     }
-//   })
-// })
-
-// export const protectedProcedure = trpc.procedure.use(isAuthed)
-
 export const authRouter = trpc.router({
+    //? Register
+    register: trpc.procedure
+    .input(signUpSchema)
+    .mutation(async ({ input }) => {
+      const user = await prisma.user.findUnique({ where: { email: input.email } });
+      if (user) throw new TRPCError({ code: 'CONFLICT', message: 'Email address already in use' });
+      // create user
+      const createdUser = await prisma.user.create({
+        data: {
+          email: input.email.toLowerCase(),
+          password: bcrypt.hashSync(input.password),
+          name: input.name,
+        },
+        select: userSelect,
+      });
+
+      if (!createdUser) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not created ---SERVER_ERROR---' });
+
+      return createdUser;
+    }),
   //? Login
-  // getSession: trpc.procedure
-  //   .query(({ ctx }) => {
-  //     return ctx.session;
-  //   }),
-  // admin: protectedProcedure.query(({ ctx }) => {
-  //   return {
-  //     secret: 'kev-secret'
-  //   }
-  // }),
   // login: trpc.procedure
   //   .input(z.object({
   //     email: z.string().min(1).email(),
@@ -92,39 +92,7 @@ export const authRouter = trpc.router({
 
   //     return {...authed_user, token};
   //   }),
-  // //? Register
-  // register: trpc.procedure
-  //   .input(z.object({
-  //       name: z.string().min(1, 'Please insert your name').max(16),
-  //       email: z.string().min(1, 'Email is required').email(),
-  //       password: z.string().min(1, 'Please insert your password').min(6).max(32),
-  //     })
-  //   )
-  //   .mutation(async ({ input }) => {
-  //     const user = await prisma.user.findUnique({
-  //       where: { email: input.email },
-  //     });
-
-  //     if (user) throw new TRPCError({
-  //       code: 'UNAUTHORIZED',
-  //       message: 'Email address already in use',
-  //     });
-
-  //     // create user
-  //     const createdUser = await prisma.user.create({
-  //       data: {
-  //         email: input.email.toLowerCase(),
-  //         password: bcrypt.hashSync(input.password),
-  //         name: input.name,
-  //       },
-  //       select: userSelect,
-  //     });
-
-  //     if (!createdUser) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not created ---SERVER_ERROR---' });
-
-  //     return createdUser;
-  //   }),
-  // //? Logout
+  //? Logout
   // logout: trpc.procedure.mutation(async ({ ctx }) => {
   //   const user = ctx.user;
   //   if (!user) return {};
@@ -151,7 +119,7 @@ export const authRouter = trpc.router({
   //   ctx.res?.setHeader('Set-Cookie', serialized);
   //   return logoutUser;
   // }),
-  // //? User
+  //? User
   // user: trpc.procedure
   //   .output(z.object({
   //     status: z.enum(['online', 'offline']),

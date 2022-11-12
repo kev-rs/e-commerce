@@ -13,7 +13,6 @@ interface Props {
 export const AdminLayout: React.FC<Props> = ({ children, title, subTitle, icon }) => {
   return (
     <>
-
       <nav>
         <AdminNavbar />
       </nav>
@@ -25,16 +24,16 @@ export const AdminLayout: React.FC<Props> = ({ children, title, subTitle, icon }
         maxWidth: '1440px',
         padding: '0px 30px'
       }}>
-        <Box display='flex' flexDirection='column'>
+        <Box display='flex' alignItems={'center'} gap={1}>
+          {icon}
           <Typography variant='h1' component='h1'>
-            { icon }
-            { title }
+            {title}
           </Typography>
-          <Typography variant='h2' sx={{ mb: 1 }}>{ subTitle }</Typography>
         </Box>
+        <Typography variant='h2' sx={{ mb: 1 }}>{subTitle}</Typography>
 
         <Box className='fadeIn'>
-          { children }
+          {children}
         </Box>
       </main>
     </>

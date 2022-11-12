@@ -8,6 +8,7 @@ async function seed() {
   try {
     await prisma.$connect();
     await prisma.product.deleteMany();
+    await prisma.customer.deleteMany();
     await prisma.order.deleteMany();
     await prisma.user.deleteMany();
     await prisma.user.createMany({

@@ -2,9 +2,11 @@ import type { GetServerSideProps, GetServerSidePropsContext, InferGetServerSideP
 import { useRouter } from 'next/router';
 import { PriceCheckOutlined } from '@mui/icons-material';
 import { ShopLayout } from '../components';
-import { trpc } from '../utils/trpc';
+import { unstable_getServerSession as getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]';
 
 
+// import { trpc } from '../utils/trpc';
 // import Stripe from 'stripe';
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 //   typescript: true,
@@ -41,17 +43,15 @@ const Success: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> 
 }
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const { session_id } = ctx.query as { session_id: string };
 
-  const res = await fetch('https://portafolio-ricardo8abreu.vercel.app/api/hello');
+  if(!session) return { redirect: { destination: `/auth/login?p=/checkout/history`, permanent: false } };
+  if(!session_id) return { redirect: { destination: '/checkout/history', permanent: false } };
+
+  const res = await fetch(`${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${ctx.req.headers.host ?? 'localhost:3000'}/api/stripe?session_id=${session_id}&auth=${session.user?.id}`);
   const data = await res.json();
-  console.log({Ricardo8A: data});
-
-  // if(!session_id) return { redirect: { destination: '/checkout/history', permanent: false } };
-
-  // const res = await fetch(`${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${ctx.req.headers.host || 'localhost:3000'}/api/stripe?session_id=${session_id}`);
-  // const data = await res.json();
-  // console.log(data);
+  console.log(data);
 
   return {
     props: {

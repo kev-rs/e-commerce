@@ -13,7 +13,10 @@ import { AuthProvider } from '../context/user/AuthProvider';
 function App({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) {
 
   return (
-    <SessionProvider session={session}>
+    <SessionProvider 
+      session={session}
+      refetchOnWindowFocus={true}
+    >
       <AuthProvider>
         <CartProvider>
           <UiProvider>

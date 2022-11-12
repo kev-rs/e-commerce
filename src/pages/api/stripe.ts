@@ -3,21 +3,20 @@ import { prisma, Order as OrderDB, Product } from '../../server/db';
 import Stripe from 'stripe';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
+import { getToken } from 'next-auth/jwt';
+
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
   apiVersion: '2022-08-01'
 });
-// const stripe: Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 type Order = OrderDB & { products: Product[], user: { email: string; name: string } }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
-  const auth_session = await getServerSession(req, res, authOptions);
-
-  if(!auth_session) return res.status(401).json({ message: 'UNAUTHORIZED' });
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) { 
+  
   if(req.method === 'POST') {
+    const auth_session = await getServerSession(req, res, authOptions);
+    if(!auth_session) return res.status(401).json({ message: 'UNAUTHORIZED' });
     const { order, customer } = req.body as { order: Order, customer: Stripe.Customer };
     if(customer.metadata.user_id !== auth_session.user?.id) return res.status(401).json({ message: 'UNAUTHORIZED' });
     console.log({order, customer});
@@ -105,7 +104,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await stripe.checkout.sessions.retrieve(String(req.query.session_id));
     const customer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
 
-    if(customer.metadata.user_id !== auth_session.user?.id) return res.status(401).json({ message: 'UNAUTHORIZED' });
+    if(customer.metadata.user_id !== req.query.auth) return res.status(401).json({ message: 'UNAUTHORIZEDssss' });
 
     if(session.payment_status !== 'paid' || session.status !== 'complete') {
       return res.status(400).json({ message: 'Payment - Error' });
@@ -116,7 +115,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if(check_order.total !== (session.amount_total! / 100)) return res.status(400).json({ message: 'Payment subtotal are not the same' });
 
-    if(session.payment_status === 'paid') return res.status(400).json({ message: 'Order is already paid' });
+    // if(session.payment_status === 'paid') {
+    //   return res.status(400).json({ message: 'Order is already paid' })
+    // };
     
     const order = await prisma.order.update({
       where: {
@@ -134,10 +135,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     res.status(200).json({ session, customer, order });
-    // res.redirect('/sucess')
   }
-  // } else {
-  //   res.setHeader('Allow', 'POST');
-  //   res.status(405).end('Method not allowed');
-  // }
 }

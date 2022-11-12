@@ -13,16 +13,9 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { signIn, getProviders } from 'next-auth/react';
 import { authOptions } from '../api/auth/[...nextauth]';
+import { type ILogin as FormValues, loginSchema } from '../../common/validation/auth';
 
-
-const schema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(1, 'Required')
-})
-
-type CookieResponse = [string, string]
-
-type FormValues = z.infer<typeof schema>
+type CookieResponse = [string, string];
 
 const Login = () => {
   const router = useRouter();
@@ -34,7 +27,7 @@ const Login = () => {
   const { register, handleSubmit, setError, formState: { errors, isSubmitSuccessful, isSubmitted, isSubmitting }, getValues } = useForm<FormValues>({
     defaultValues: { email: user[0] || '', password: user[1] || '' },
     mode: 'all',
-    resolver: zodResolver(schema),
+    resolver: zodResolver(loginSchema),
   });
   // const utils = trpc.useContext();
   // const mutation = trpc.auth.login.useMutation({

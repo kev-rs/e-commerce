@@ -4,28 +4,32 @@ import GithubProvider from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from '../../../server/db';
 import bcrypt from 'bcryptjs';
-// import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { loginSchema } from "../../../common/validation/auth";
 
 export const authOptions: NextAuthOptions = {
-// export default NextAuth({
   // adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: 'Credentials',
+      type: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email', placeholder: 'user@email.com' },
         password: { label: 'Password', type: 'password', placeholder: 'Password' },
       },
       async authorize(credentials, req) {
-        const user = await prisma.user.findUnique({ where: { email: credentials?.email } });
+        const creds = await loginSchema.parseAsync(credentials);
+        const user = await prisma.user.findUnique({ where: { email: creds.email } });
+
         if(!user) return null;
-        if(!bcrypt.compareSync(credentials!.password, user.password!)) return null;
+        if(!bcrypt.compareSync(creds.password, user.password ?? '')) return null;
 
         const authed_user = await prisma.user.update({
-          where: { email: credentials!.email },
+          where: { email: creds.email },
           data: { status: 'online' },
           select: { email: true, name: true, role: true, status: true, id: true }
         })
+
         return authed_user;
       },
     }),
@@ -43,9 +47,37 @@ export const authOptions: NextAuthOptions = {
     maxAge: 2592000, // 30d
     strategy: 'jwt',
     updateAge: 86400, // update every day
+    // strategy: 'database',
+    // updateAge: 0, // update second
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+    maxAge: 15 * 24 * 30 * 60, // 15 days
+  },
+  events: {
+    signOut: async ({ token, session }) => {
+      const user = await prisma.user.findUnique({
+        where: {
+          email: token.email ?? ''
+        }
+      })
+      if(!user) return
+      await prisma.user.update({
+        where: {
+          email: user.email,
+        },
+        data: { status: 'offline' },
+      })
+    },
+    // session: ({session, token}) => {
+    //   // console.log({event: { session: session.user, token: token.user }});
+    // },
+    // updateUser: ({ user }) => {
+    //   // console.log({event2: user});
+    // },
   },
   callbacks: {
-    async jwt({ token, account, user, profile }) {
+    async jwt({ token, account, user, profile, isNewUser }) { 
       if(account) {
         token.accessToken = account.access_token;
 
@@ -73,16 +105,21 @@ export const authOptions: NextAuthOptions = {
             break;
           default: break;
         }
+      } else if(token) {
+        const user = await prisma.user.findUnique({ 
+          where: { email: token.email ?? '' }, select: { email: true, name: true, role: true, status: true, id: true }
+        });
+        if(!user) return token
+        token.user = user
       }
       return token;
     },
     async session({ session, token, user }) {
       session.accessToken = token.accessToken;
-      session.user = token.user as any;
+      session.user = token.user;
       return session;
-    },
+    }
   },
-// })
 }
 
 export default NextAuth(authOptions);

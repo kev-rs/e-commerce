@@ -5,25 +5,13 @@ import { useRouter } from 'next/router';
 import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { AuthLayout } from '../../components';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from '../../utils/trpc';
 import { ErrorOutline } from '@mui/icons-material';
 import Cookies from 'js-cookie';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
-
-const schema = z.object({
-  name: z.string().min(1, 'Please insert your name').max(16),
-  email: z.string().min(1, 'Email is required').email(),
-  password: z.string().min(1, 'Please insert your password').min(6).max(32),
-  confirm_password: z.string().min(1, 'Please confirm your password')
-}).refine((val) => val.password === val.confirm_password, {
-  message: 'Passwords not match',
-  path: ['confirm_password']
-});
-
-type FormValues = z.infer<typeof schema>;
+import { signUpSchema, type ISignUp as FormValues } from '../../common/validation/auth';
 
 const RegisterPage = () => {
 
@@ -31,18 +19,18 @@ const RegisterPage = () => {
   const { register, formState: { errors }, reset, handleSubmit, setError, getValues } = useForm<FormValues>({
     defaultValues: { name: '', email: '', password: '', confirm_password: '' },
     mode: 'all',
-    resolver: zodResolver(schema),
+    resolver: zodResolver(signUpSchema),
   });
   
   const mutation = trpc.auth.register.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       const values = getValues(['email', 'password'])
       Cookies.set('data-form', JSON.stringify(values), {
         path: '/', sameSite: 'strict', secure: process.env.NODE_ENV === 'production',
       });
+      if(router.query.p) return await router.push(`/auth/login?p=${router.query.p}`);
+      await router.push('/auth/login');
       reset();
-      if(router.query.p) return router.push(`/auth/login?p=${router.query.p}`);
-      router.push('/auth/login');
     },
     onError: (err) => {
       setError('email', { message: err.message, type: 'used' }, { shouldFocus: true });

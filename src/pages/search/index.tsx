@@ -45,13 +45,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
     router: appRouter,
     ctx: await createContext(),
     transformer: superjson,
-    // queryClientConfig: {
-    //   defaultOptions: {
-    //     queries: {
-    //       // refetchOnReconnect: false
-    //     }
-    //   }
-    // }
   });
   
   const query = ctx.query.q as string

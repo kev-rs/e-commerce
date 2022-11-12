@@ -8,10 +8,6 @@ const Home: React.FC = () => {
 
   const loading = useMemo(() => isLoading || isFetching, [ isFetching, isLoading ]);
 
-  useEffect(() => {
-    fetch('https://next-pokemon-mocha.vercel.app/api/hello').then(console.log);
-  }, []);
-
   return (
     <ShopLayout title={'Tesla-Shop'} pageInfo={'Find the best products'}>
       <Typography variant='h1' component={'h1'}>Shop</Typography>
