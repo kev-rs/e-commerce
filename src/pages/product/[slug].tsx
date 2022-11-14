@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
 import type { GetStaticPaths, GetStaticPropsContext, InferGetStaticPropsType } from 'next';
 import { db } from '../../server/db'
 import { createProxySSGHelpers } from '@trpc/react/ssg';
@@ -11,21 +11,29 @@ import { ICart } from '../../interfaces';
 import { ValidSizes } from '../../server/db';
 import { CartContext } from '../../context/cart';
 import { useRouter } from 'next/router';
+import { trpc } from '../../utils/trpc';
 
-const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product }) => {
+const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product: product_server, slug }) => {
+
+  // const utils = trpc.useContext();
+  const { data: product } = trpc.products.getProductBySlug.useQuery({ slug }, {
+    initialData: product_server,
+    refetchInterval: 6000,
+    refetchOnReconnect: true,
+  })
 
   const router = useRouter();
   const { addProduct } = useContext(CartContext);
 
   const [ cartProduct, setCartProduct ] = useState<ICart>({
-    id: product.id,
-    image: product.images[0],
-    inStock: product.inStock,
-    price: product.price,
+    id: product!.id,
+    image: product!.images[0],
+    inStock: product!.inStock,
+    price: product!.price,
     size: undefined,
-    slug: product.slug,
-    title: product.title,
-    gender: product.gender,
+    slug: product!.slug,
+    title: product!.title,
+    gender: product!.gender,
     amount: 1,
   });
 
@@ -134,7 +142,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export async function getStaticProps({ params }: GetStaticPropsContext<{ slug: string }>) {
 
-  const ssg = await createProxySSGHelpers({
+  const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: await createContext(),
     transformer: superjson,

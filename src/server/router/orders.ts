@@ -35,13 +35,13 @@ export const ordersRouter = trpc.router({
     }),
   getAll: trpc.procedure
     .input(z.object({ email: z.string().min(1, 'Required') }))
-    .query( async ({ ctx, input }) => {
+    .query( async ({ input }) => {
       const user = await prisma.user.findUnique({ 
-        where: { ...input }, 
+        where: { email: input.email }, 
         select: { 
           orders: {
             select: {
-              id: true, numberOfItems: true, paidOut: true, products: true, shippingAddress: true, subTotal: true, tax: true, total: true, userId: true, user: { select: { email: true, name: true } }, shippingAddressId: true, paidAt: true, paymentResult: true,
+              id: true, numberOfItems: true, paidOut: true, products: true, shippingAddress: true, subTotal: true, tax: true, total: true, userId: true, user: { select: { email: true, name: true } }, shippingAddressId: true
             }
           } 
         } 
@@ -103,6 +103,7 @@ export const ordersRouter = trpc.router({
       const order = await prisma.order.create({
         data: {
           ...input,
+          tax: taxRate,
           shippingAddress: {
             create: {...input.shippingAddress},
           },

@@ -41,7 +41,7 @@ const columns: GridColDef[] = [
 
 const HistoryPage: React.FC<{ orders: Order[] }> = ({ orders }) => {
   const rows = useMemo(() => {
-    return orders.map(({ id, paidOut, shippingAddress, userId }, i) => ({ id: i + 1, paid: paidOut, fullname: `${shippingAddress.name} ${shippingAddress.lastName}`, orderId: id }));
+    return orders.map(({ id, paidOut, shippingAddress }, i) => ({ id: i + 1, paid: paidOut, fullname: `${shippingAddress.name} ${shippingAddress.lastName}`, orderId: id }));
   }, [ orders ]);
 
   return (
@@ -68,13 +68,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
 
   if(!session) return { redirect: { destination: '/auth/login?p=/orders/history', permanent: false }};
 
-  const ssg = await createProxySSGHelpers({
+  const ssg = createProxySSGHelpers({
     router: appRouter,
     ctx: await createContext(),
     transformer: superjson,
-  })
+  });
 
-  const user = await ssg.orders.getAll.fetch({ email: session.user!.email! })
+  const user = await ssg.orders.getAll.fetch({ email: session.user?.email ?? '' });
+  console.log({user});
 
   if(!user) return { redirect: { destination: '/', permanent: false } };
   return {

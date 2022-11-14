@@ -4,7 +4,9 @@ import { ProductList, ShopLayout, Loading } from '../components';
 import { Typography } from '@mui/material';
 
 const Home: React.FC = () => {
-  const { data, isLoading, isFetching } = trpc.products.getProducts.useQuery();
+  const { data, isLoading, isFetching } = trpc.products.getProducts.useQuery(undefined, {
+    refetchOnMount: true, refetchOnReconnect: true, refetchOnWindowFocus: true
+  });
 
   const loading = useMemo(() => isLoading || isFetching, [ isFetching, isLoading ]);
 

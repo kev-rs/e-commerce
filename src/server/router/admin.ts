@@ -3,16 +3,7 @@ import { prisma } from '../db';
 import { z } from 'zod';
 import { TRPCError } from "@trpc/server";
 import { ObjectId } from 'mongodb';
-
-type Data = {
-  numberOfOrders: number; // count
-  paidOrders: number; // isPaid = true
-  notPaidOrders: number; // isPaid = false
-  numberOfClients: number; // role = client
-  numberOfProducts: number; // count
-  productsWithNoInventory: number; // 0
-  lowInventory: number; // products w/ 10 or less in stock
-}
+import { adminSchema, Dashboard } from "../../common/validation/admin";
 
 export const adminRouter = trpc.router({
   dash: trpc.procedure.query(async () => {
@@ -22,7 +13,7 @@ export const adminRouter = trpc.router({
       prisma.seedProduct.findMany(),
     ])
 
-    const data: Data = {
+    const data: Dashboard = {
       numberOfOrders: orders.length,
       paidOrders: orders.filter(o => o.paidOut == true).length,
       notPaidOrders: orders.filter(o => o.paidOut == false).length,
@@ -66,7 +57,41 @@ export const adminRouter = trpc.router({
       select: { total: true, paidOut: true, numberOfItems: true, id: true, user: { select: { email: true, name: true }}, shippingAddress: { select: { name: true, lastName: true }}, createdAt: true},
       orderBy: { createdAt: 'desc' }
     })
-
     return orders;
+  }),
+  products: trpc.router({
+    get: trpc.procedure.query( async () => {
+      const products = await prisma.seedProduct.findMany({
+        orderBy: { createdAt: 'desc' }
+      })
+      /**
+       * TODO: Update images
+       */
+      return products;
+    }),
+    upsert: trpc.procedure
+      .input(adminSchema)
+      .output(adminSchema)
+      .mutation( async ({ input: { id, ...input } }) => {
+        // if no id, create product
+        if(!id || id === 'create') {
+          const product = await prisma.seedProduct.findUnique({ where: { slug: input.slug } });
+          if(product) throw new TRPCError({ code: 'CONFLICT', message: 'Name already in use' });
+          return await prisma.seedProduct.create({ data: { ...input } })
+        };
+
+        // update product
+        if(!ObjectId.isValid(id)) throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid ID' });
+
+        const product = await prisma.seedProduct.findUnique({ where: { id } });
+        if(!product) throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' });
+
+        // TODO: remove photos from Cloudinary or AWS
+
+        return await prisma.seedProduct.update({ where: { id }, data: { ...input } });
+    }),
+  delete: trpc.procedure
+    .input(z.object({ id: z.string().min(1, 'Required') }))
+    .mutation( async ({ input }) => await prisma.seedProduct.delete({ where: { id: input.id } }))
   })
 })

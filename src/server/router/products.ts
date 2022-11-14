@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const defaultSelect = Prisma.validator<Prisma.SeedProductSelect>()({
-  title: true, images: true, price: true, inStock: true, slug: true, gender: true, description: true, sizes: true, id: true
+  title: true, images: true, price: true, inStock: true, slug: true, gender: true, description: true, sizes: true, id: true,
 });
 
 export const productsRouter = trpc.router({
@@ -61,14 +61,14 @@ export const productsRouter = trpc.router({
     }),
   getProductBySlug: trpc.procedure
     .input(z.object({
-      slug: z.string().min(1)
+      slug: z.string().min(1, 'Slug required')
     }))
     .query(async ({ input, ctx }) => {
       const product = await prisma.seedProduct.findUnique({
         where: {
           slug: input.slug
         },
-        select: defaultSelect,
+        select: { ...defaultSelect, tags: true, type: true },
       })
 
       if(!product) throw new TRPCError({

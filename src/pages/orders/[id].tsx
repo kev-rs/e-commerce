@@ -29,7 +29,7 @@ const OrderPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>
 
   const [ loading, setLoading ] = useState<boolean>(false);
   // const router = useRouter();
-
+  
   const handlePay = async () => {
     try {
       setLoading( true );
@@ -158,17 +158,14 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   });
 
   const order = await ssg.orders.get.fetch({ id });
-  // console.log({order_userId: order?.userId, session_userId: session.user?.id});
   if (!order) return { redirect: { destination: '/orders/history', permanent: false } };
   if (!order.customer) return { redirect: { destination: '/orders/history', permanent: false } };
-  // console.log({order_userId: order.userId, session_userId: session.user?.id});
   if (order.userId !== session.user!.id) return { redirect: { destination: '/orders/history', permanent: false } };
 
   // const customers = await stripe.customers.list();
   // customers.data.forEach(async ({ id }) => await stripe.customers.del(id));
   // console.log({customers: customers.data})
   const customer = await stripe.customers.retrieve(order.customer.cuid as string);
-  console.log({customer});
   return {
     props: {
       trpcState: ssg.dehydrate(),

@@ -19,7 +19,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if(!auth_session) return res.status(401).json({ message: 'UNAUTHORIZED' });
     const { order, customer } = req.body as { order: Order, customer: Stripe.Customer };
     if(customer.metadata.user_id !== auth_session.user?.id) return res.status(401).json({ message: 'UNAUTHORIZED' });
-    console.log({order, customer});
     try {
       const session = await stripe.checkout.sessions.create({
         customer: customer.id,
@@ -77,19 +76,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           },
         ],
-        line_items: order.products.map((item) => ({
+        line_items: order.products.map((item) => {
+          return {
            price_data: {
              currency: 'usd',
              product_data: {
                name: item.title,
                images: [item.image],
              },
-             unit_amount: (item.price + order.tax) * 100,
-            //  unit_amount: item.price * 100,
+             unit_amount: ( (item.price * order.tax) + item.price ) * 100,
            },
            adjustable_quantity: { enabled: false },
            quantity: item.amount,
-        })),
+        }}),
         // automatic_tax: { enabled: true },
         success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/?canceled=true`,
@@ -112,8 +111,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const check_order = await prisma.order.findUnique({ where: { id: customer.metadata.order_id } });
     if(!check_order) return res.status(404).json({ message: 'Order not found' });
-
-    if(check_order.total !== (session.amount_total! / 100)) return res.status(400).json({ message: 'Payment subtotal are not the same' });
+    if(check_order.total !== (session.amount_subtotal! / 100)) return res.status(400).json({ message: 'Payment subtotal are not the same' });
 
     // if(session.payment_status === 'paid') {
     //   return res.status(400).json({ message: 'Order is already paid' })
@@ -131,6 +129,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         paidOut: session.payment_status === 'paid',
         transactionId: session.id,
+        total: session.amount_total! / 100
       },
     })
 

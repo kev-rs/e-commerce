@@ -29,7 +29,7 @@ export const OrderSummary: React.FC<{ order?: Order }> = ({ order }) => {
         <Typography>Taxes ({Number(process.env.NEXT_PUBLIC_TAX_RATE) * 100}%)</Typography>
       </Grid>
       <Grid item xs={6} display='flex' justifyContent={'end'}>
-        <Typography>{currency.format(order ? order.tax : taxes)}</Typography>
+        <Typography>{currency.format(order ? order.tax * order.subTotal : taxes)}</Typography>
       </Grid>
 
       <Grid item xs={6} sx={{mt: 2}}>
