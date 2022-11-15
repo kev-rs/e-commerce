@@ -2,7 +2,8 @@ import { useReducer, useEffect } from 'react';
 import { ICart } from '../../interfaces';
 import { cartReducer } from './cartReducer';
 import { Provider } from './store';
-import Cookie from 'js-cookie';
+import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+// import Cookie from 'js-cookie';
 
 interface UserInfo {
   name: string;
@@ -39,13 +40,15 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
   const [ state, dispatch ] = useReducer(cartReducer, CART_INITIAL_STATE);
   
   useEffect(() => {
-    const info = Cookie.get('user-info') ? JSON.parse(Cookie.get('user-info')!) : {};
+    // @ts-ignore
+    const info = getCookie('user-info') ? JSON.parse(getCookie('user-info')!) : {};
     dispatch({ type: 'load-user-address', payload: info })
   }, []);
 
   useEffect(() => {
     try {
-      const cart = Cookie.get('cart') ? JSON.parse(Cookie.get('cart')!) : [];
+      // @ts-ignore
+      const cart = getCookie('cart') ? JSON.parse(getCookie('cart')!) : [];
       dispatch({ type: 'load', payload: cart });
     } catch (err) {
       dispatch({ type: 'load', payload: [] });
@@ -53,7 +56,7 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
   }, []);
 
   useEffect(() => {
-    Cookie.set('cart', JSON.stringify(state.cart), {
+    setCookie('cart', JSON.stringify(state.cart), {
       path: '/', sameSite: 'strict', secure: process.env.NODE_ENV === 'production'
     });
   }, [state.cart]);
@@ -101,7 +104,7 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
   }
 
   const updateAddress = (info: UserInfo) => {
-    Cookie.set('user-info', JSON.stringify(info));
+    setCookie('user-info', JSON.stringify(info));
     dispatch({ type: 'load-user-address', payload: info })
   }
 
