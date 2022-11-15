@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import type { GetStaticPaths, GetStaticPropsContext, InferGetStaticPropsType } from 'next';
 import { db } from '../../server/db'
 import { createProxySSGHelpers } from '@trpc/react/ssg';
@@ -12,8 +12,13 @@ import { ValidSizes } from '../../server/db';
 import { CartContext } from '../../context/cart';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
+import { getCookie } from 'cookies-next';
 
 const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product: product_server, slug }) => {
+  useEffect(() => {
+    // @ts-ignore
+    console.log({ Slug: JSON.parse(getCookie('cart') || '[]') })
+  }, []);
 
   // const utils = trpc.useContext();
   const { data: product } = trpc.products.getProductBySlug.useQuery({ slug }, {
@@ -45,16 +50,16 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
     setCartProduct(product => ({ ...product, amount: Math.min(Math.max(cartProduct.amount + amount, 1), maxValue > 0 ? maxValue : 7) }));
   }
 
-  const handleAdd = async () => {
+  const handleAdd = () => {
     if (!cartProduct.size) return;
-    const check = await addProduct({ ...cartProduct });
-    check && router.push('/cart');
+    addProduct({ ...cartProduct });
+    router.push('/cart');
   }
 
-  const handleBuy = async () => {
+  const handleBuy = () => {
     if (!cartProduct.size) return;
-    const check = await addProduct({ ...cartProduct });
-    check && router.push('/checkout/address');
+    addProduct({ ...cartProduct });
+    router.push('/checkout/address');
   }
 
   return (

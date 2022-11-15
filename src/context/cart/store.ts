@@ -9,7 +9,7 @@ interface Store {
   taxes: number;
   total: number;
   shippingAddress: UserInfo | null
-  addProduct: (product: ICart) => Promise<boolean> | void;
+  addProduct: (product: ICart) => void;
   updateProduct: (product: ICart) => void;
   removeProduct: (product: ICart) => void;
   updateAddress: (info: UserInfo) => void;

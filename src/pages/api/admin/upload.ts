@@ -38,8 +38,6 @@ const parseFiles = async (req: NextApiRequest): Promise<{ secure_url: string; pu
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  const asd = cookies.serialize('images', '', {maxAge: 0})
-  res.setHeader('images', asd)
   if(req.method === 'POST') {
     const img_file = await parseFiles(req);
     return res.status(201).json({ file: img_file });

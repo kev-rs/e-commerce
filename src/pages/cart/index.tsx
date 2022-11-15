@@ -1,8 +1,15 @@
 import { Box, Button, Card, CardContent, Divider, Grid, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { getCookie } from 'cookies-next';
 
 const Cart = () => {
+
+  useEffect(() => {
+    // @ts-ignore
+    console.log({ Cart: JSON.parse(getCookie('cart') || '[]') })
+  }, []);
 
   const router = useRouter();
 

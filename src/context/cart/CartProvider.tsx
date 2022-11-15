@@ -38,6 +38,11 @@ const CART_INITIAL_STATE: CartState = {
 export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   const [ state, dispatch ] = useReducer(cartReducer, CART_INITIAL_STATE);
+
+  useEffect(() => {
+    // @ts-ignore
+    console.log({ Provider: JSON.parse(getCookie('cart') || '[]') })
+  }, []);
   
   useEffect(() => {
     // @ts-ignore
@@ -56,9 +61,7 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
   }, []);
 
   useEffect(() => {
-    setCookie('cart', JSON.stringify(state.cart), {
-      path: '/', sameSite: 'strict', secure: process.env.NODE_ENV === 'production'
-    });
+    setCookie('cart', JSON.stringify(state.cart));
   }, [state.cart]);
 
   useEffect(() => {
@@ -85,12 +88,17 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
     dispatch({ type: 'update', payload: product });
   }
 
-  const addProduct = (product: ICart): Promise<boolean> | void => {
+  const addProduct = (product: ICart): void => {
+    
     const check = state.cart.some((p) => p.id === product.id);
-    if (!check) return dispatch({ type: 'add', payload: [...state.cart, product] });
+    if (!check) {
+      return dispatch({ type: 'add', payload: [...state.cart, product] });
+    }
 
     const check2 = state.cart.some((p) => p.id === product.id && p.size === product.size);
-    if (!check2) return dispatch({ type: 'add', payload: [...state.cart, product] });
+    if (!check2) {
+      return dispatch({ type: 'add', payload: [...state.cart, product] });
+    }
 
     const updatedProducts = state.cart.map((p) => {
       if (p.id !== product.id) return p;
@@ -101,7 +109,6 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
     });
 
     dispatch({ type: 'add', payload: updatedProducts });
-    return new Promise((resolve, reject) => resolve(true));
   }
 
   const updateAddress = (info: UserInfo) => {
