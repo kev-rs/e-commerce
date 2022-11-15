@@ -51,7 +51,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   const res = await fetch(`${process.env.NODE_ENV === 'production' ? 'https' : 'http'}://${ctx.req.headers.host ?? 'localhost:3000'}/api/stripe?session_id=${session_id}&auth=${session.user?.id}`);
   const data = await res.json();
-  console.log(data);
+  // console.log(data);
 
   return {
     props: {

@@ -1,4 +1,4 @@
-import {  InferGetStaticPropsType } from 'next';
+import {  InferGetServerSidePropsType, InferGetStaticPropsType } from 'next';
 import { AdminPanelSettingsOutlined } from '@mui/icons-material';
 import { AdminLayout } from '../../../components'
 import { DataGrid, GridColDef, GridRenderCellParams, GridValueGetterParams } from "@mui/x-data-grid";
@@ -28,7 +28,8 @@ const columns: GridColDef[] = [
   { field: 'createdAt', headerName: 'Created at', width: 200 },
 ];
 
-const OrdersPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ orders }) => {
+// const OrdersPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ orders }) => {
+const OrdersPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ orders }) => {
 
   const rows = orders.map((o) => ({
     orderId: o.id, email: o.user.email, user: o.user.name, name: `${o.shippingAddress.name} ${o.shippingAddress.lastName}`, total: `$${o.total}`, paidOut: o.paidOut,
@@ -51,7 +52,7 @@ const OrdersPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ 
   )
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
 
   const ssg = createProxySSGHelpers({
     router: appRouter,
@@ -60,7 +61,7 @@ export const getStaticProps = async () => {
   })
 
   const orders = await ssg.admin.orders.fetch();
-
+  console.log('[ADMIN - Orders]', orders);
   return {
     props: {
       orders: JSON.parse(JSON.stringify(orders)) as typeof orders
