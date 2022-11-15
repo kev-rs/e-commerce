@@ -90,19 +90,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
            quantity: item.amount,
         }}),
         // automatic_tax: { enabled: true },
-        success_url: `https://${req.headers.host}/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/?canceled=true`,
       });
-      console.log('[API] - POST', req.headers);
-      console.log('[API] - POST', req.headers.origin);
       res.status(200).json(session);
     } catch (err: any) {
       console.log({err});
       res.status(err.statusCode || 500).json({ message: err.message });
     }
   } else if(req.method === 'GET') {
-    console.log('[API] - GET', req.headers);
-    console.log('[API] - GET', req.headers.origin);
     const session = await stripe.checkout.sessions.retrieve(String(req.query.session_id));
     const customer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
 
