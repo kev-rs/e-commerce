@@ -38,7 +38,7 @@ const SummaryPage = () => {
       paidOut: false,
       total,
     }, {
-      onError: console.log
+      onError: console.error
     })
   }
 

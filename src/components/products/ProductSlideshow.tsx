@@ -14,7 +14,7 @@ export const ProductSlideshow: React.FC<Props> = ({ images }) => {
       indicators
     >
       {images.map(image => {
-        const url = `/products/${image}`;
+        const url = image.startsWith('https') ? image : `/products/${image}`;
 
         return (
           <div className={styles['each-slide']} key={image}>

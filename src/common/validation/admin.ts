@@ -28,7 +28,7 @@ export const adminSchema = z.object({
   type: type,
   gender: gender,
   sizes: sizes,
-  images: z.string().array().min(2).optional(),
+  images: z.string().array().min(2, 'Minimum 2 images').optional().default([]),
 })
 
 export type TypeValue = 'title' | 'description' | 'inStock' | 'price' | 'slug' | 'tags' | 'type' | 'gender' | 'sizes';

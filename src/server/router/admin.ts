@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { TRPCError } from "@trpc/server";
 import { ObjectId } from 'mongodb';
 import { adminSchema, Dashboard } from "../../common/validation/admin";
+import { v2 as cloudinary } from 'cloudinary'
+
 
 export const adminRouter = trpc.router({
   dash: trpc.procedure.query(async () => {
@@ -86,7 +88,14 @@ export const adminRouter = trpc.router({
         const product = await prisma.seedProduct.findUnique({ where: { id } });
         if(!product) throw new TRPCError({ code: 'NOT_FOUND', message: 'Product not found' });
 
-        // TODO: remove photos from Cloudinary or AWS
+        // TODO: remove photos from Cloudinary
+        // console.log({ images_db: product.images, images: input.images })
+        product.images.forEach( async (image) => {
+          if(!input.images.includes(image)) {
+            const [ id, ext ] = image.substring(image.lastIndexOf('/') + 1).split('.')
+            await cloudinary.uploader.destroy(id);
+          }
+        })
 
         return await prisma.seedProduct.update({ where: { id }, data: { ...input } });
     }),

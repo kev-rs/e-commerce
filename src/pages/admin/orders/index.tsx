@@ -10,22 +10,22 @@ import superjson from 'superjson';
 
 const columns: GridColDef[] = [
   { field: 'orderId', headerName: 'Order ID', width: 250 },
-  { field: 'email', headerName: 'Email', width: 250 },
-  { field: 'user', headerName: 'User', width: 300 },
-  { field: 'name', headerName: 'Customer', width: 300 },
-  { field: 'total', headerName: 'Total amount', width: 300 },
-  { field: 'paidOut', headerName: 'Paid Out', width: 300, renderCell: (params: GridRenderCellParams) => {
+  { field: 'email', headerName: 'Email', width: 140 },
+  { field: 'user', headerName: 'User', width: 70 },
+  { field: 'name', headerName: 'Customer', width: 80 },
+  { field: 'total', headerName: 'Total amount', width: 98 },
+  { field: 'paidOut', headerName: 'Paid Out', width: 100, renderCell: (params: GridRenderCellParams) => {
     return (
       params.row.paidOut
         ? <Chip color='success' label='Paid out' variant='outlined' />
         : <Chip color='error' label='Pending' variant='outlined' />
     )
   } },
-  { field: 'inStock', headerName: 'No. Products', width: 300 },
-  { field: 'order', headerName: 'Show order', width: 300, renderCell: ({ row }) => (
+  { field: 'inStock', headerName: 'No. Products', width: 100 },
+  { field: 'order', headerName: 'Show order', width: 100, renderCell: ({ row }) => (
     <a href={`/admin/orders/${row.id}`} target='_blank' rel='noreferrer'>Show order</a>
   ) },
-  { field: 'createdAt', headerName: 'Created at', width: 300 },
+  { field: 'createdAt', headerName: 'Created at', width: 200 },
 ];
 
 const OrdersPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ orders }) => {

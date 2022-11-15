@@ -110,3 +110,12 @@
   width: 78%;
   background: #d34a4a;
 }
+
+.alert {
+  animation: alert .8s infinite alternate ease-in
+}
+
+@keyframes alert {
+  from { border-color: #b8b8b82f; color: #b8b8b8; };
+  to { border-color: red; color: red; };
+}

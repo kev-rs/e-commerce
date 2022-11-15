@@ -11,19 +11,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from '../../../utils/trpc';
 import { useRouter } from 'next/router';
 import { adminSchema, type AdminSchema as FormValues, type ProductType, type TypeGender, type TypeValue, type TypeSize } from '../../../common/validation/admin';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 import api from '../../../services/api';
+import Cookies from 'js-cookie';
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import cookies from 'cookie';
+import { z } from 'zod';
+
 
 const validTypes: ProductType[] = ['shirts', 'pants', 'hoodies', 'hats'];
 const validGender: TypeGender[] = ['men', 'women', 'kid', 'unisex'];
 const validSizes: TypeSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 
-const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
-
+const ProductAdminPage: React.FC<{ product?: FormValues, slug: string }> = ({ product }) => {
   const [ newTag, setNewTag ] = useState<string>('');
 
   const router = useRouter();
+
   const utils = trpc.useContext();
   const mutation = trpc.admin.products.upsert.useMutation({
     onSuccess: () => {
@@ -32,20 +37,17 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
     }
   });
 
-  const { register, handleSubmit: submit, formState: { errors, isSubmitting, isSubmitSuccessful, isSubmitted }, getValues, setValue } = useForm<FormValues>({
+  const { register, handleSubmit: submit, formState: { errors, isSubmitSuccessful, isSubmitted }, getValues, setValue, setError, clearErrors } = useForm<FormValues>({
     resolver: zodResolver(adminSchema),
     mode: 'all',
     shouldFocusError: true,
-    defaultValues: { 
-      ...product, 
+    defaultValues: {
+      ...product,
       slug: product?.title.trim().replaceAll(' ', '_').replaceAll("'", '').toLowerCase(),
-      tags: product?.tags || []
-    }
+      tags: product?.tags || [],
+      images: product?.images
+    },
   });
-
-  const onDeleteTag = (tag: string) => {
-    setValue('tags', [...getValues('tags') || []].filter(t => t !== tag), { shouldValidate: true });
-  }
   
   const handleChange = ({ name, value }: { name: TypeValue; value: ProductType | TypeGender | TypeSize }): void => {
     if(name === 'sizes') {
@@ -61,38 +63,49 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
     }
     setValue(name, value, { shouldValidate: true });
   };
-  
+
+
   const handleTags = () => {
+    const tag = z.string().min(1, 'Required').trim()
     const newTagValue = newTag.trim().toLowerCase()
+    const check = tag.safeParse(newTagValue);
+    if(!(check.success)) return setError('tags', { message: check.error.issues[0].message });;
+    clearErrors('tags')
+    
     let tags = getValues('tags') || [];
     setNewTag('')
     if(tags.includes(newTagValue)) return;
     tags.push(newTagValue);
   }
 
-  const handleSubmit: SubmitHandler<FormValues> = ( data ) => {
-    console.log({ data });
-    mutation.mutate({ ...data, images: data.images || ['img1.jpg', 'img2.jpg'] }, { onError: console.log });
+  const onDeleteTag = (tag: string) => {
+    setValue('tags', [...getValues('tags') || []].filter(t => t !== tag), { shouldValidate: true });
   }
 
-  const FileInputRef = useRef<HTMLInputElement>(null);
+  const handleSubmit: SubmitHandler<FormValues> = ( data ) => {
+    mutation.mutate(data, { onError: console.log });
+  }
 
   const handleUpload =async (e: ChangeEvent<HTMLInputElement>) => {
-    if(!e.target.files || e.target.files.length < 1) return;
-
-    
+    if(!e.target.files || e.target.files.length < 1) return;    
     try {
       // @ts-ignore
       for(const file of e.target.files) {
         const formData = new FormData();
         formData.append('file', file);
-        const { data } = await api.post<{ message: string }>('/admin/upload', formData)
-        console.log({data});
+        const { data } = await api.post<{ file: { secure_url: string; public_id: string; } }>('/admin/upload', formData);
+        setValue('images', [...getValues('images') ?? [], data.file.secure_url], { shouldValidate: true });
       }
     } catch (err) {
       console.log(err);
     }
   }
+
+  const handleDelete = async (url: string) => {
+    setValue('images', getValues('images')?.filter(img => img !== url), { shouldValidate: true });
+  }
+
+  const FileInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <AdminLayout
@@ -238,7 +251,8 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
               variant="filled"
               fullWidth
               sx={{ mb: 1 }}
-              // { ...register('tags', { onChange: handleTags }) }
+              // { ...register('tags', { onChange: (e) => setNewTag(e.target.value) }) }
+              value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               onKeyUp={(e) => e.code === 'Space' ? handleTags() : undefined}
               error={!!errors.tags}
@@ -284,7 +298,7 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
               
               <input 
                 ref={FileInputRef}
-                type='file' 
+                type='file'
                 multiple
                 accept='image/png, image/gif, image/jpg, image/jpeg'
                 style={{ display: 'none' }}
@@ -292,30 +306,34 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
               />
 
               <Chip
+                sx={{ display: getValues('images')?.length >= 2 ? 'none' : 'flex', textAlign: 'center' }}
                 label="Minimum 2 images"
                 color='error'
                 variant='outlined'
+                className='alert'
               />
 
               <Grid container spacing={2}>
                 {
-                  [...product?.images || ['img1.jpg', 'img2.jpg']].map(img => (
+                  getValues('images')?.map(img => {
+                    return (
                     <Grid item xs={4} sm={3} key={img}>
                       <Card>
                         <CardMedia
                           component='img'
                           className='fadeIn'
-                          image={`/products/${img}`}
+                          image={img.startsWith('https') ? img : `/products/${img}`}
                           alt={img}
                         />
                         <CardActions>
-                          <Button fullWidth color="error">
+                          <Button fullWidth color="error" onClick={() => handleDelete(img)}>
                             Delete
                           </Button>
                         </CardActions>
                       </Card>
                     </Grid>
-                  ))
+                  )}
+                  )
                 }
               </Grid>
             </Box>
@@ -328,9 +346,9 @@ const ProductAdminPage: React.FC<{ product?: FormValues }> = ({ product }) => {
 
 
 export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const slug = ctx.params?.slug;
+  if(!slug) return { redirect: { destination: '/admin/products', permanent: false } };
 
-  // if(!ctx.query.slug) return { redirect: { destination: '/admin/products', permanent: false } };
-  // if(ctx.query.slug === 'add+new+product') return { redirect: { destination: '/admin/products', permanent: false } };
   if(ctx.query.slug === 'create') return {
     props: {
       product: null
@@ -343,12 +361,13 @@ export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSideP
     transformer: superjson,
   })
 
-  const product = await ssg.products.getProductBySlug.fetch({ slug: ctx.query.slug as string });
-
+  const product = await ssg.products.getProductBySlug.fetch({ slug: ctx.query.slug as string });  
+  
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      product
+      product,
+      slug,
     }
   }
 }

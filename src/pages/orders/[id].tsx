@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { Box, Card, CardContent, Chip, Divider, Grid, Typography } from '@mui/material'
 import { ShopLayout, CartList, OrderSummary } from '../../components'
 import { CreditCardOffOutlined, CreditScoreOutlined, ShoppingCart } from '@mui/icons-material';
@@ -10,11 +10,9 @@ import superjson from 'superjson';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { ObjectId } from 'mongodb';
-// import { Order, Product } from '../../server/db';
 import { loadStripe } from '@stripe/stripe-js'
 import { LoadingButton } from '@mui/lab';
 import Stripe from 'stripe';
-// import { useRouter } from 'next/router';
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -28,7 +26,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 const OrderPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ order, cuid, customer }) => {
 
   const [ loading, setLoading ] = useState<boolean>(false);
-  // const router = useRouter();
   
   const handlePay = async () => {
     try {
@@ -41,7 +38,6 @@ const OrderPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>
         },
         body: JSON.stringify({ order, customer }),
       })
-      // if(res.status === 500) return;
   
       const data = await res.json();
       const stripeCheck = await stripe?.redirectToCheckout({ sessionId: data.id })

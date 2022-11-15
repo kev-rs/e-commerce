@@ -60,7 +60,7 @@ const ProductsPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = (
         <CardMedia
           component={'img'}
           className='fadeIn'
-          image={`/products/${row.img}`}
+          image={(row.img as string).startsWith('https') ? row.img : `/products/${row.img}`}
           alt={row.title}
         />
       </a>
@@ -81,27 +81,9 @@ const ProductsPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = (
         <>
           <CardMedia>
             <IconButton onClick={(e) => handleOpen(e, row.id)}>
-            {/* <IconButton> */}
               <Delete />
             </IconButton>
           </CardMedia>
-          {/* <div>
-            <Button aria-describedby={id} variant="contained" onClick={handleOpen}>
-              Open Popover
-            </Button>
-            <Popover
-              id={id}
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-            >
-              <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
-            </Popover>
-          </div> */}
         </>
       )
     }},

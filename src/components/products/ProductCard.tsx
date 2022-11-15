@@ -23,8 +23,8 @@ export const ProductCard: React.FC<Product & Props> = (product) => {
   const productImage = useMemo(() => {
     if (isLoading) return ``
     return isHovered
-      ? `/products/${product.images[1]}`
-      : `/products/${product.images[0]}`
+      ? `${product.images[0].startsWith('https') ? product.images[0] : `/products/${product.images[0]}`}`
+      : `${product.images[1].startsWith('https') ? product.images[1] : `/products/${product.images[1]}`}`
   }, [isHovered, product.images, isLoading]);
 
   return (

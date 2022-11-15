@@ -1,6 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import Stripe from 'stripe';
 
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
+    typescript: true,
+    apiVersion: '2022-08-01'
+  });
+  
 const prisma = new PrismaClient();
 
 async function seed() {
@@ -814,6 +820,8 @@ async function seed() {
       },
       ]
     })
+    // const customers = await stripe.customers.list();
+    // customers.data.forEach(async ({ id }) => await stripe.customers.del(id));
   } catch (err) {
     console.log(err)
     await prisma.$disconnect()

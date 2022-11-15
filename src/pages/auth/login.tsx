@@ -81,6 +81,7 @@ const Login = () => {
               fullWidth
               {...register('email')}
               // error={mutation.error?.data?.code === 'NOT_FOUND' || !!errors.email?.message}
+              error={errors.email?.type !== 'wrongE' && !!errors.email?.message}
               helperText={errors.email?.type !== 'wrongE' && errors.email?.message}
             />
           </Grid>
@@ -91,6 +92,7 @@ const Login = () => {
               variant='outlined'
               fullWidth {...register('password')}
               // error={mutation.error?.data?.code === 'UNAUTHORIZED' || !!errors.password?.message}
+              error={errors.password?.type !== 'wrong' && Boolean(errors.password?.message)}
               helperText={errors.password?.type !== 'wrong' && errors.password?.message}
             />
           </Grid>
