@@ -95,7 +95,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
       console.log('[API] - POST', req.headers);
       console.log('[API] - POST', req.headers.origin);
-      res.redirect(303, session.url!);
       res.status(200).json(session);
     } catch (err: any) {
       console.log({err});
