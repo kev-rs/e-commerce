@@ -11,12 +11,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { trpc } from '../../../utils/trpc';
 import { useRouter } from 'next/router';
 import { adminSchema, type AdminSchema as FormValues, type ProductType, type TypeGender, type TypeValue, type TypeSize } from '../../../common/validation/admin';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { LoadingButton } from '@mui/lab';
 import api from '../../../services/api';
-import Cookies from 'js-cookie';
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
-import cookies from 'cookie';
 import { z } from 'zod';
 
 

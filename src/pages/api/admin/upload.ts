@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import formidable from 'formidable';
 import { v2 as cloudinary } from 'cloudinary'
-import cookies from 'cookie';
-// import fs from 'fs';
 
 cloudinary.config(process.env.CLOUDINARY_URL ?? '');
 

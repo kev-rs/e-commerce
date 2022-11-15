@@ -2,8 +2,7 @@ import { useReducer, useEffect } from 'react';
 import { ICart } from '../../interfaces';
 import { cartReducer } from './cartReducer';
 import { Provider } from './store';
-import { deleteCookie, getCookie, setCookie } from 'cookies-next';
-// import Cookie from 'js-cookie';
+import { getCookie, setCookie } from 'cookies-next';
 
 interface UserInfo {
   name: string;
