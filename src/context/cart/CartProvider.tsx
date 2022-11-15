@@ -3,9 +3,6 @@ import { ICart } from '../../interfaces';
 import { cartReducer } from './cartReducer';
 import { Provider } from './store';
 import Cookie from 'js-cookie';
-// import { UserInfo } from '../../pages/checkout/address';
-// import { Order } from '../../server/db';
-// import { trpc } from '../../utils/trpc';
 
 interface UserInfo {
   name: string;
