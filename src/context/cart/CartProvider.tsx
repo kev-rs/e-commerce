@@ -85,7 +85,7 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
     dispatch({ type: 'update', payload: product });
   }
 
-  const addProduct = (product: ICart) => {
+  const addProduct = (product: ICart): Promise<boolean> | void => {
     const check = state.cart.some((p) => p.id === product.id);
     if (!check) return dispatch({ type: 'add', payload: [...state.cart, product] });
 
@@ -101,6 +101,7 @@ export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) 
     });
 
     dispatch({ type: 'add', payload: updatedProducts });
+    return new Promise((resolve, reject) => resolve(true));
   }
 
   const updateAddress = (info: UserInfo) => {

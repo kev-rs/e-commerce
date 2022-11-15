@@ -45,16 +45,16 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
     setCartProduct(product => ({ ...product, amount: Math.min(Math.max(cartProduct.amount + amount, 1), maxValue > 0 ? maxValue : 7) }));
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!cartProduct.size) return;
-    addProduct({ ...cartProduct });
-    router.push('/cart');
+    const check = await addProduct({ ...cartProduct });
+    check && router.push('/cart');
   }
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
     if (!cartProduct.size) return;
-    addProduct({ ...cartProduct });
-    router.push('/checkout/address');
+    const check = await addProduct({ ...cartProduct });
+    check && router.push('/checkout/address');
   }
 
   return (
