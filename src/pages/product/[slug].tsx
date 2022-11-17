@@ -15,12 +15,6 @@ import { trpc } from '../../utils/trpc';
 import { getCookie } from 'cookies-next';
 
 const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product: product_server, slug }) => {
-  useEffect(() => {
-    // @ts-ignore
-    console.log({ Slug: JSON.parse(getCookie('cart') || '[]') })
-  }, []);
-
-  // const utils = trpc.useContext();
   const { data: product } = trpc.products.getProductBySlug.useQuery({ slug }, {
     initialData: product_server,
     refetchInterval: 6000,

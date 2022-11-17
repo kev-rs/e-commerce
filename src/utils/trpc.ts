@@ -16,22 +16,6 @@ function getBaseUrl() {
 
 export const trpc = createTRPCNext<AppRouter>({
   config({ ctx }) {
-    // if (typeof window !== 'undefined') {
-    //   // during client requests
-    //   return {
-    //     transformer: superjson, // optional - adds superjson serialization
-    //     links: [
-    //       httpBatchLink({
-    //         url: '/api/trpc',
-    //       }),
-    //     ]
-    //   };
-    // }
-    // The server needs to know your app's full url
-    // const url = process.env.VERCEL_URL
-    //   ? `https://${process.env.VERCEL_URL}/api/trpc`
-    //   : 'http://localhost:3000/api/trpc';
-
     return {
       transformer: superjson, // optional - adds superjson serialization
       links: [

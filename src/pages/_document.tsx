@@ -2,8 +2,7 @@ import Document, { Html, Head, Main, NextScript, DocumentContext, DocumentInitia
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
-    const originalRenderPage = ctx.renderPage
-
+    const originalRenderPage = ctx.renderPage;
     // Run the React rendering logic synchronously
     ctx.renderPage = () =>
       originalRenderPage({

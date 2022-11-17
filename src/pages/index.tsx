@@ -2,6 +2,7 @@ import { useMemo, useEffect } from 'react';
 import { trpc } from '../utils/trpc';
 import { ProductList, ShopLayout, Loading } from '../components';
 import { Typography } from '@mui/material';
+import axios from 'axios';
 
 const Home: React.FC = () => {
   const { data, isLoading, isFetching } = trpc.products.getProducts.useQuery(undefined, {

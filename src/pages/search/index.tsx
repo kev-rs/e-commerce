@@ -1,13 +1,12 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { GetServerSidePropsContext, InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import { Box, Typography } from '@mui/material';
-import { ProductList, ShopLayout, Loading } from '../../components';
+import { ProductList, ShopLayout } from '../../components';
 import { trpc } from '../../utils/trpc';
 import { createProxySSGHelpers } from '@trpc/react/ssg';
 import { appRouter } from '../../server/router/_app';
 import { createContext } from '../../server/context';
 import superjson from 'superjson';
-import { UIContext } from '../../context';
 
 const Search: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ query }) => {
   const { data, isLoading, isFetching } = trpc.products.search.useQuery({ query });

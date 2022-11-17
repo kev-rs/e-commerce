@@ -54,23 +54,14 @@ export const adminRouter = trpc.router({
         return updated_user
       })
   }),
-  orders: trpc.procedure.query( async () => {
-    const orders = await prisma.order.findMany({
-      select: { total: true, paidOut: true, numberOfItems: true, id: true, user: { select: { email: true, name: true }}, shippingAddress: { select: { name: true, lastName: true }}, createdAt: true},
+  orders: trpc.procedure.query( async () => await prisma.order.findMany({
+      select: { total: true, paidOut: true, numberOfItems: true, id: true, user: { select: { email: true, name: true }}, 
+      shippingAddress: { select: { name: true, lastName: true }}, createdAt: true},
       orderBy: { createdAt: 'desc' }
     })
-    return orders;
-  }),
+  ),
   products: trpc.router({
-    get: trpc.procedure.query( async () => {
-      const products = await prisma.seedProduct.findMany({
-        orderBy: { createdAt: 'desc' }
-      })
-      /**
-       * TODO: Update images
-       */
-      return products;
-    }),
+    get: trpc.procedure.query( async () => await prisma.seedProduct.findMany({ orderBy: { createdAt: 'desc' } }) ),
     upsert: trpc.procedure
       .input(adminSchema)
       .output(adminSchema)

@@ -12,4 +12,5 @@ export const appRouter = trpc.router({
   admin: adminRouter,
   auth: authRouter,
 })
+
 export type AppRouter = typeof appRouter;

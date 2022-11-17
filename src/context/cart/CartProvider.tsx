@@ -37,11 +37,6 @@ const CART_INITIAL_STATE: CartState = {
 export const CartProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   const [ state, dispatch ] = useReducer(cartReducer, CART_INITIAL_STATE);
-
-  useEffect(() => {
-    // @ts-ignore
-    console.log({ Provider: JSON.parse(getCookie('cart') || '[]') })
-  }, []);
   
   useEffect(() => {
     // @ts-ignore

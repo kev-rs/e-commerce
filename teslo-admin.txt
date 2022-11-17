@@ -1,0 +1,5 @@
+teslo-admin
+yDVhiQ4QcWX5BM2S
+
+DATABASE_URL=mongodb://mongo1:30001/kevdb
+MONGO_URL=mongodb://localhost:27017/kevdb
