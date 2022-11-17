@@ -1,6 +1,5 @@
-import { useState, useContext, useEffect } from 'react';
-import type { GetStaticPaths, GetStaticPropsContext, InferGetStaticPropsType } from 'next';
-import { db } from '../../server/db'
+import { useState, useContext } from 'react';
+import type { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import { createProxySSGHelpers } from '@trpc/react/ssg';
 import { appRouter } from '../../server/router/_app';
 import { createContext } from '../../server/context';
@@ -8,22 +7,23 @@ import { Box, Button, Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { ItemCounter, ShopLayout, ItemSize, ProductSlideshow } from '../../components';
 import superjson from 'superjson';
 import { ICart } from '../../interfaces';
-import { ValidSizes } from '../../server/db';
+import { ValidSizes, prisma } from '../../server/db';
 import { CartContext } from '../../context/cart';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
-import { getCookie } from 'cookies-next';
 
-const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product: product_server, slug }) => {
+// const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({ product: product_server }) => {
+const ProductPage: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ product: product_server, slug }) => {
+  
   const { data: product } = trpc.products.getProductBySlug.useQuery({ slug }, {
     initialData: product_server,
     refetchInterval: 6000,
     refetchOnReconnect: true,
   })
-
+  
   const router = useRouter();
   const { addProduct } = useContext(CartContext);
-
+  
   const [ cartProduct, setCartProduct ] = useState<ICart>({
     id: product!.id,
     image: product!.images[0],
@@ -129,17 +129,22 @@ const ProductPage: React.FC<InferGetStaticPropsType<typeof getStaticProps>> = ({
   )
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
+// export const getStaticPaths: GetStaticPaths = async () => {
 
-  const products = await db.getAllProductSlugs();
+//   const products = await prisma.seedProduct.findMany({
+//     select: { slug: true }
+//   })
 
-  return {
-    paths: products.map(({ slug }) => ({ params: { slug } })),
-    fallback: 'blocking'
-  }
-}
+//   const paths = products.map(({ slug }) => ({ params: { slug } }));
 
-export async function getStaticProps({ params }: GetStaticPropsContext<{ slug: string }>) {
+//   return {
+//     paths,
+//     fallback: 'blocking'
+//   }
+// }
+
+// export async function getStaticProps({ params }: GetStaticPropsContext<{ slug: string }>) {
+export const getServerSideProps: GetServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   const ssg = createProxySSGHelpers({
     router: appRouter,
@@ -147,19 +152,14 @@ export async function getStaticProps({ params }: GetStaticPropsContext<{ slug: s
     transformer: superjson,
   });
 
-  const slug = params?.slug as string;
-
-  const product = await ssg.products.getProductBySlug.fetch({ slug })
-
-  // if (!product) return { redirect: { destination: '/', permanent: false } };
-
+  const product = await ssg.products.getProductBySlug.fetch({ slug: ctx.query.slug as string });
+  
   return {
     props: {
       trpcState: ssg.dehydrate(),
-      slug,
+      slug: ctx.query.slug as string,
       product,
     },
-    revalidate: 86400
   }
 }
 

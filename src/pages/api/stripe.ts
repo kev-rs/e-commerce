@@ -3,7 +3,6 @@ import { prisma, Order as OrderDB, Product } from '../../server/db';
 import Stripe from 'stripe';
 import { unstable_getServerSession as getServerSession } from 'next-auth';
 import { authOptions } from './auth/[...nextauth]';
-import { getToken } from 'next-auth/jwt';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,
@@ -102,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await stripe.checkout.sessions.retrieve(String(req.query.session_id));
     const customer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
 
-    if(customer.metadata.user_id !== req.query.auth) return res.status(401).json({ message: 'UNAUTHORIZEDssss' });
+    if(customer.metadata.user_id !== req.query.auth) return res.status(401).json({ message: 'UNAUTHORIZED' });
 
     if(session.payment_status !== 'paid' || session.status !== 'complete') {
       return res.status(400).json({ message: 'Payment - Error' });
