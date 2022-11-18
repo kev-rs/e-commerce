@@ -17,7 +17,7 @@
     "incremental": true,
     "sourceMap": true,
     "outDir": "dist",
-    "typeRoots": ["./types"]
+    "typeRoots": ["./types/next-auth.d.ts"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/products", "src/context/cart"],
   "exclude": ["node_modules"]
