@@ -43,7 +43,6 @@ const Success: React.FC<InferGetServerSidePropsType<typeof getServerSideProps>> 
 }
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-  console.log(ctx.req.headers);
   const session = await getServerSession(ctx.req, ctx.res, authOptions);
   const { session_id } = ctx.query as { session_id: string };
 
