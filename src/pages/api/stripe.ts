@@ -126,7 +126,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               id: customer.metadata.user_id
             }
           },
-          paidOut: session.payment_status === 'paid',
+          // paidOut: session.payment_status === 'paid',
+          paidOut: true,
           transactionId: session.id,
           total: session.amount_total! / 100
         },

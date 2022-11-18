@@ -148,8 +148,6 @@ export const ordersRouter = trpc.router({
           order_id: order.id,
           user_id: order.userId,
         },
-        // tax: order.tax,
-        // payment_method: 'pm_card_visa'
       })
 
       const order_ = await prisma.order.update({
