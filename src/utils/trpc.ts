@@ -6,6 +6,8 @@ import type { AppRouter } from '../server/router/_app';
 function getBaseUrl() {
   if (typeof window !== 'undefined') return ''; // browser should use relative path    
 
+  if (process.env.HOST_NAME) return process.env.HOST_NAME; // reference for vercel.com
+
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // reference for vercel.com
     
   if (process.env.RENDER_INTERNAL_HOSTNAME) return `http://${process.env.RENDER_INTERNAL_HOSTNAME}:${process.env.PORT}`; // reference for render.com
