@@ -18,6 +18,6 @@ declare module "next-auth" {
         role?: 'admin' | 'client' | 'super_user' | 'SEO', 
         status?: 'online' | 'offline', 
         // picture?: string | null;
-    } | undefined & JWT['user']
+    } | undefined
 }
 }

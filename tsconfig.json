@@ -17,7 +17,7 @@
     "incremental": true,
     "sourceMap": true,
     "outDir": "dist",
-    "typeRoots": ["./typings", "./types"]
+    "typeRoots": ["./types"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/components/products", "src/context/cart"],
   "exclude": ["node_modules"]
