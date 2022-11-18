@@ -5,6 +5,11 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's postal address. */
+      name?: string | null;
+      email?: string | null;
+      id?: string
+      role?: 'admin' | 'client' | 'super_user' | 'SEO', 
+      status?: 'online' | 'offline', 
       address: string
     } & DefaultSession['user']
   }
