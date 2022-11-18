@@ -15,10 +15,10 @@ export default withAuth(
       if(!user_info) return NextResponse.redirect(new URL('/checkout/address', req.url));
     }
 
-    if(req.nextUrl.pathname.startsWith('/admin')) {
-      if(req.nextauth.token?.user?.role === 'admin') return NextResponse.next();
-      return NextResponse.redirect(new URL('/', req.url));
-    }
+    // if(req.nextUrl.pathname.startsWith('/admin')) {
+    //   // if(req.nextauth.token?.user?.role === 'admin') return NextResponse.next();
+    //   return NextResponse.redirect(new URL('/', req.url));
+    // }
   },
   {
     callbacks: {
