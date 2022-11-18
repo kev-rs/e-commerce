@@ -11,8 +11,8 @@ declare module "next-auth" {
       id?: string
       role?: 'admin' | 'client' | 'super_user' | 'SEO', 
       status?: 'online' | 'offline', 
-      address: string
-    } & DefaultSession['user']
+      address?: string;
+    } | undefined & DefaultSession['user']
   }
 }
 

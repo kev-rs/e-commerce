@@ -79,7 +79,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, user, profile, isNewUser }) { 
       if(account) {
-        token.accessToken = account.access_token;
+        token.accessToken = account.access_token as string;
 
         switch(account.type) {
           case 'oauth':
