@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { DefaultSession, JWT } from "next-auth"
 
 declare module "next-auth" {
   /**
@@ -8,9 +8,9 @@ declare module "next-auth" {
     user: {
       /** The user's postal address. */
       address: string
-    }
+    } & DefaultSession['user']
   }
-  interface JWT extends Record<string, unknown>, DefaultJWT {
+  interface JWT {
     user: {
         name?: string | null;
         email?: string | null;
@@ -18,6 +18,6 @@ declare module "next-auth" {
         role?: 'admin' | 'client' | 'super_user' | 'SEO', 
         status?: 'online' | 'offline', 
         // picture?: string | null;
-    } | undefined
+    } | undefined & JWT['user']
 }
 }
