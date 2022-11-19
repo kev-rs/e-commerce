@@ -115,28 +115,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   return res.status(400).json({ message: 'Order is already paid' })
     // };
     
-    try {
-      const order = await prisma.order.update({
-        where: {
-          id: customer.metadata.order_id,
+    const order = await prisma.order.update({
+      where: {
+        id: customer.metadata.order_id,
+      },
+      data: {
+        user: {
+          connect: {
+            id: customer.metadata.user_id
+          }
         },
-        data: {
-          user: {
-            connect: {
-              id: customer.metadata.user_id
-            }
-          },
-          // paidOut: session.payment_status === 'paid',
-          paidOut: true,
-          transactionId: session.id,
-          total: session.amount_total! / 100
-        },
-      })
-  
-      res.status(200).json({ session, customer, order });
-    } catch (err) {
-      res.status(400).json({ message: err })
-    }
-    
+        paidOut: session.payment_status === 'paid',
+        transactionId: session.id,
+        total: session.amount_total! / 100
+      },
+    })
+
+    res.status(200).json({ session, customer, order });
   }
 }
