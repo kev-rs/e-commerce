@@ -1,5 +1,5 @@
 import { trpc } from '../trpc';
-import { prisma, Prisma, Role, UserStatus } from '../db';
+import { prisma, Prisma, Role, UserStatus, User } from '../db';
 import { TRPCError } from '@trpc/server';
 import bcrypt from 'bcryptjs';
 import { signUpSchema } from '../../common/validation/auth';
@@ -11,13 +11,7 @@ const userSelect = Prisma.validator<Prisma.UserSelect>()({
   email: true, name: true, id: true, role: true, status: true,
 });
 
-export interface IUser {
-  email: string;
-  name: string;
-  id: string;
-  status: UserStatus;
-  role: Role;
-}
+type IUser = Omit<User, 'password' | 'createdAt' | 'updatedAt'>
 
 export const authRouter = trpc.router({
     //? Register

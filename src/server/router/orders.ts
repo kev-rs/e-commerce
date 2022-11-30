@@ -7,17 +7,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2022-08
 
 type Order = OrderDB & { products: Product[] }
 
-// const isAuthed = trpc.middleware(({ next, ctx }) => {
-//   if(!ctx.session?.user?.email) throw new TRPCError({ code: 'UNAUTHORIZED' });
-//   return next({
-//     ctx: {
-//       session: ctx.session
-//     },
-//   })
-// });
-
-// const protectedProcedure = trpc.procedure.use(isAuthed);
-
 export const ordersRouter = trpc.router({
   get: trpc.procedure
     .input(z.object({

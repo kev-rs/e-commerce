@@ -29,26 +29,10 @@ const Login = () => {
     mode: 'all',
     resolver: zodResolver(loginSchema),
   });
-  // const utils = trpc.useContext();
-  // const mutation = trpc.auth.login.useMutation({
-  //   onSuccess: (data) => {
-  //     utils.auth.user.invalidate();
-  //     auth_user(data)
-  //     reset();
-      // if(router.query.p) return router.push(`${router.query.p}`)
-      // router.back();
-  //   },
-  //   onError: (err) => {
-  //     err.data?.code === 'NOT_FOUND'
-  //       ? setError('email', { message: err.message, type: 'wrongE' })
-  //       : setError('password', { message: err.message, type: 'wrong' })
-  //   },
-  // })
 
   useEffect(() => {
     router.prefetch(`${router.query.p}`)
   }, [ router ]);
-  // const handleLogin: SubmitHandler<FormValues> = (data) => mutation.mutate(data);
   const handleLogin: SubmitHandler<FormValues> = async (data) => {
     const res = await signIn('credentials', { ...data, redirect: false });
     if(res?.error) return setError('password', { type: 'wrong', message: 'Your password is incorrect' }, { shouldFocus: true });
